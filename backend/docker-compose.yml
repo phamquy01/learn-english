@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  backend-db:
+    image: mysql:latest
+    container_name: mysql_container
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: quypham
+      MYSQL_PASSWORD: Abc123456
+      MYSQL_DATABASE: backend-db
+    volumes:
+      - ./data/mysql:/var/lib/mysql
