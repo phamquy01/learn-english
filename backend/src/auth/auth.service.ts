@@ -40,37 +40,39 @@ export class AuthService {
 
     const savedUser = await this.userRepository.save(user);
     const token = await this.signJwtToken(savedUser.id, savedUser.email);
+    delete savedUser.hashedPassword;
 
     return {
-      statusCode: 200,
-      message: 'User registered successfully',
-      accessToken: token,
+      user: savedUser,
+      token,
     };
   }
 
   // Login method
   async login(authDTO: AuthDTO) {
-    const response = await this.userRepository.findOne({
+    const responseUser = await this.userRepository.findOne({
       where: { email: authDTO.email },
     });
-    const isCheckedPassword =
-      response && bcrypt.compareSync(authDTO.password, response.hashedPassword);
-
-    if (!response) {
+    if (!responseUser) {
       throw new BadRequestException('User not found');
     }
+
+    const isCheckedPassword =
+      responseUser &&
+      bcrypt.compareSync(authDTO.password, responseUser.hashedPassword);
     if (!isCheckedPassword) {
       throw new BadRequestException('Iscorrect password');
     }
+
     const token = isCheckedPassword
-      ? await this.signJwtToken(response.id, response.email)
+      ? await this.signJwtToken(responseUser.id, responseUser.email)
       : null;
 
-    delete response.hashedPassword;
+    delete responseUser.hashedPassword;
+
     return {
-      statusCode: 200,
-      message: 'User logged in successfully',
-      accessToken: token ? `Bearer ${token}` : token,
+      user: responseUser,
+      token,
     };
   }
 

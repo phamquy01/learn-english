@@ -7,10 +7,17 @@ import { User } from './entities';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
   ) {}
+
   getUsers() {
-    return this.userRepository.find();
+    const users = this.userRepository.find();
+    users.then((data) => {
+      data.map((user) => {
+        delete user.hashedPassword;
+      });
+    });
+    return users;
   }
 
   async getDetailUser(userId: number) {
@@ -20,6 +27,7 @@ export class UserService {
     if (!user) {
       return new ForbiddenException('User not found');
     }
+    delete user.hashedPassword;
     return user;
   }
 
