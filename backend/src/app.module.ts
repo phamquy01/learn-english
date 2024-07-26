@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entities';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddleware } from './auth/middleware';
+import { AppController } from 'src/app.controller';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { LoggerMiddleware } from './auth/middleware';
     AuthModule,
     UserModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
