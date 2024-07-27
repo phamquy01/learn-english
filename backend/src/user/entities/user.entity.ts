@@ -1,9 +1,11 @@
+import { Session } from 'src/auth/entities/session.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -35,4 +37,7 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Session, (session) => session.user)
+  sessions: Session[];
 }

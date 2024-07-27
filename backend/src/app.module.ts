@@ -6,6 +6,7 @@ import { User } from './user/entities';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddleware } from './auth/middleware';
 import { AppController } from 'src/app.controller';
+import { Session } from 'src/auth/entities';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { AppController } from 'src/app.controller';
       username: 'quypham',
       password: 'Abc123456',
       database: 'backend-db',
-      entities: [User],
+      entities: [User, Session],
       synchronize: true,
     }),
     AuthModule,

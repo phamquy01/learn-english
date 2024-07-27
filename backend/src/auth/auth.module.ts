@@ -6,10 +6,11 @@ import { User } from 'src/user/entities';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategy';
+import { Session } from 'src/auth/entities';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Session]),
     PassportModule.register({ defaultStrategy: 'jwt', session: false }),
     JwtModule.register({}),
   ],

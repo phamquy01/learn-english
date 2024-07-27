@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities';
@@ -6,12 +6,16 @@ import { Repository } from 'typeorm';
 import { AuthDTO } from './dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { CustomErrorException } from 'src/exception';
+import { Session } from 'src/auth/entities';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
+    @InjectRepository(Session)
     private userRepository: Repository<User>,
+    private sessionRepository: Repository<Session>,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
@@ -28,7 +32,12 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new BadRequestException('Email is already in use');
+      throw new CustomErrorException([
+        {
+          field: 'email',
+          message: 'email đã được sử dụng',
+        },
+      ]);
     }
 
     const user = this.userRepository.create({
@@ -54,14 +63,24 @@ export class AuthService {
       where: { email: authDTO.email },
     });
     if (!responseUser) {
-      throw new BadRequestException('User not found');
+      throw new CustomErrorException([
+        {
+          field: 'email',
+          message: 'Email không tồn tại',
+        },
+      ]);
     }
 
     const isCheckedPassword =
       responseUser &&
       bcrypt.compareSync(authDTO.password, responseUser.hashedPassword);
     if (!isCheckedPassword) {
-      throw new BadRequestException('Iscorrect password');
+      throw new CustomErrorException([
+        {
+          field: 'password',
+          message: 'Email hoặc mật khẩu không đúng',
+        },
+      ]);
     }
 
     const token = isCheckedPassword
@@ -73,6 +92,12 @@ export class AuthService {
     return {
       user: responseUser,
       token,
+    };
+  }
+
+  logout() {
+    return {
+      message: 'Đăng xuất thành công',
     };
   }
 

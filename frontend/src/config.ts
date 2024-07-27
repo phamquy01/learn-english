@@ -7,7 +7,6 @@ const configSchema = z.object({
 const configProject = configSchema.safeParse({
   NEXT_PUBLIC_API_ENDPOINT: process.env.NEXT_PUBLIC_API_ENDPOINT,
 });
-console.log(configProject);
 
 if (!configProject.success) {
   console.error(configProject);
@@ -15,6 +14,5 @@ if (!configProject.success) {
 }
 
 const envConfig = configProject.data;
-console.log(envConfig);
 
 export default envConfig;

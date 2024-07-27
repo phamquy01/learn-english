@@ -3,7 +3,7 @@ import {
   PipeTransform,
   Injectable,
   ArgumentMetadata,
-  BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
@@ -19,7 +19,7 @@ export class ValidationPipe implements PipeTransform<any> {
     const errors = await validate(object);
 
     if (errors.length > 0) {
-      throw new BadRequestException([errors[0].constraints]);
+      throw new ForbiddenException([errors[0].constraints]);
     }
     return value;
   }

@@ -19,7 +19,10 @@ export class AuthController {
     const { user, token } = await this.authService.register(authDTO);
     if (this.configService.get('COOKIE_MODE')) {
       response.cookie('sessionToken', token, {
-        expires: new Date(Date.now() + 3600000),
+        httpOnly: true,
+        path: '/',
+        sameSite: 'none',
+        secure: true,
       });
       return {
         data: {
@@ -46,7 +49,10 @@ export class AuthController {
     const { user, token } = await this.authService.login(authDTO);
     if (this.configService.get('COOKIE_MODE')) {
       response.cookie('sessionToken', token, {
-        expires: new Date(Date.now() + 3600000),
+        httpOnly: true,
+        path: '/',
+        sameSite: 'none',
+        secure: true,
       });
       return {
         data: {
