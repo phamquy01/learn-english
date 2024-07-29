@@ -13,9 +13,9 @@ import { Session } from 'src/auth/entities';
 export class AuthService {
   constructor(
     @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Session)
-    private userRepository: Repository<User>,
-    private sessionRepository: Repository<Session>,
+    private readonly sessionRepository: Repository<Session>,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
@@ -49,11 +49,20 @@ export class AuthService {
 
     const savedUser = await this.userRepository.save(user);
     const token = await this.signJwtToken(savedUser.id, savedUser.email);
+    const expiresAt = await this.generateExpiresAt(365 * 24 * 60);
+
+    const session = this.sessionRepository.create({
+      user: user,
+      token,
+      expiresAt,
+    });
+
+    const savedSession = await this.sessionRepository.save(session);
     delete savedUser.hashedPassword;
 
     return {
       user: savedUser,
-      token,
+      session: savedSession,
     };
   }
 
@@ -86,12 +95,20 @@ export class AuthService {
     const token = isCheckedPassword
       ? await this.signJwtToken(responseUser.id, responseUser.email)
       : null;
+    const expiresAt = await this.generateExpiresAt(365 * 24 * 60);
 
-    delete responseUser.hashedPassword;
-
-    return {
+    const session = this.sessionRepository.create({
       user: responseUser,
       token,
+      expiresAt,
+    });
+
+    const savedSession = await this.sessionRepository.save(session);
+
+    delete responseUser.hashedPassword;
+    return {
+      user: responseUser,
+      session: savedSession,
     };
   }
 
@@ -109,5 +126,11 @@ export class AuthService {
       secret: this.configService.get('JWT_SECRET'),
     });
     return jwtString;
+  }
+
+  async generateExpiresAt(durationInMinutes: number): Promise<Date> {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + durationInMinutes);
+    return now;
   }
 }

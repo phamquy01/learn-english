@@ -4,7 +4,7 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
-  JoinColumn,
+  //   JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -18,7 +18,7 @@ export class Session {
   @Column()
   expiresAt: Date;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => User, (user) => user.sessions)
+  //   @JoinColumn({ name: 'userId' })
   user: User;
 }

@@ -1,13 +1,20 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities';
+import { Session } from 'src/auth/entities';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Session)
+    private readonly sessionRepository: Repository<Session>,
   ) {}
 
   getUsers() {
@@ -18,6 +25,18 @@ export class UserService {
       });
     });
     return users;
+  }
+
+  async getMe(token: string): Promise<User> {
+    const session = await this.sessionRepository.findOne({
+      where: { token },
+      relations: ['user'],
+    });
+
+    if (!session) {
+      throw new UnauthorizedException('Session không tồn tại');
+    }
+    return session.user;
   }
 
   async getDetailUser(userId: number) {

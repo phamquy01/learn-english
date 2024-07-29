@@ -16,28 +16,31 @@ export class AuthController {
     @Res({ passthrough: true }) response: ResponseType,
     @Body() authDTO: AuthDTO,
   ) {
-    const { user, token } = await this.authService.register(authDTO);
-    if (this.configService.get('COOKIE_MODE')) {
-      response.cookie('sessionToken', token, {
+    const { user, session } = await this.authService.register(authDTO);
+    if (this.configService.get('COOKIE_MODE') === 'true') {
+      response.cookie('sessionToken', session.token, {
         httpOnly: true,
         path: '/',
         sameSite: 'none',
         secure: true,
       });
       return {
+        message: 'Đăng ký thành công',
         data: {
-          token,
+          token: session.token,
+          expiresAt: session.expiresAt,
           user,
         },
-        message: 'Đăng ký thành công',
       };
     }
+
     return {
+      message: 'Đăng ký thành công',
       data: {
-        token,
+        token: session.token,
+        expiresAt: session.expiresAt,
         user,
       },
-      message: 'Đăng ký thành công',
     };
   }
 
@@ -46,28 +49,30 @@ export class AuthController {
     @Res({ passthrough: true }) response: ResponseType,
     @Body() authDTO: AuthDTO,
   ) {
-    const { user, token } = await this.authService.login(authDTO);
-    if (this.configService.get('COOKIE_MODE')) {
-      response.cookie('sessionToken', token, {
+    const { user, session } = await this.authService.login(authDTO);
+    if (this.configService.get('COOKIE_MODE') === 'true') {
+      response.cookie('sessionToken', session.token, {
         httpOnly: true,
         path: '/',
         sameSite: 'none',
         secure: true,
       });
       return {
+        message: 'Đăng nhập thành công',
         data: {
-          token,
+          token: session.token,
+          expiresAt: session.expiresAt,
           user,
         },
-        message: 'Đăng nhập thành công',
       };
     }
     return {
+      message: 'Đăng nhập thành công',
       data: {
-        token,
+        token: session.token,
+        expiresAt: session.expiresAt,
         user,
       },
-      message: 'Đăng nhập thành công',
     };
   }
 }

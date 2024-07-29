@@ -46,7 +46,6 @@ export function RegisterForm() {
         body: JSON.stringify(value),
       }
     ).then((res) => res.json());
-    console.log(result);
   }
 
   return (
