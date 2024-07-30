@@ -21,9 +21,6 @@ export default function RootLayout({
 }>) {
   const cookieStore = cookies();
   const sessionToken = cookieStore.get('sessionToken');
-
-  console.log('sessionToken', sessionToken);
-
   return (
     <html lang="en">
       <body className={inter.className}>

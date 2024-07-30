@@ -15,13 +15,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema';
-import envConfig from '@/config';
 import { useToast } from '@/components/ui/use-toast';
-import { useAppContext } from '@/AppProvider';
+import apiAuthRequest from '@/apiRequests/auth';
+import { useRouter } from 'next/navigation';
+import { clientSessionToken } from '@/lib/http';
 
 export function LoginForm() {
   const { toast } = useToast();
-  const { setSessionToken } = useAppContext();
+  const router = useRouter();
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -31,49 +32,14 @@ export function LoginForm() {
     },
   });
 
-  async function onSubmit(value: LoginBodyType) {
+  async function onSubmit(values: LoginBodyType) {
     try {
-      const result = await fetch(
-        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(value),
-        }
-      ).then(async (res) => {
-        const payload = await res.json();
-        const data = {
-          status: res.status,
-          payload,
-        };
-        if (!res.ok) {
-          throw data;
-        }
-        return data;
-      });
+      const result = await apiAuthRequest.login(values);
       toast({
         description: result.payload.message,
       });
-      const resultFromNextServer = await fetch('/api/auth', {
-        method: 'POST',
-        body: JSON.stringify(result),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(async (res) => {
-        const payload = await res.json();
-        const data = {
-          status: res.status,
-          payload,
-        };
-        if (!res.ok) {
-          throw data;
-        }
-        return data;
-      });
-      setSessionToken(resultFromNextServer.payload.data.token);
+      await apiAuthRequest.auth({ sessionToken: result.payload.data.token });
+      router.push('/user');
     } catch (error: any) {
       const errors = error.payload.errors as {
         field: string;

@@ -1,35 +1,17 @@
 'use client';
 
-import { useAppContext } from '@/AppProvider';
+import apiUserRequests from '@/apiRequests/user';
 import envConfig from '@/config';
+import { clientSessionToken } from '@/lib/http';
 import React, { use, useEffect } from 'react';
 
 export default function Profile() {
-  const { sessionToken } = useAppContext();
   useEffect(() => {
     const fetchApi = async () => {
-      const result = await fetch(
-        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/user/me`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionToken}`,
-          },
-        }
-      ).then(async (res) => {
-        const payload = await res.json();
-        const data = {
-          status: res.status,
-          payload,
-        };
-        if (!res.ok) {
-          throw data;
-        }
-        return data;
-      });
+      const result = await apiUserRequests.meClient();
       console.log('result', result);
     };
     fetchApi();
-  }, [sessionToken]);
+  }, []);
   return <div>Profile</div>;
 }

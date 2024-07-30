@@ -27,7 +27,6 @@ export class UserController {
 
   @Get('me')
   async getMe(@Req() request: RequestType) {
-    console.log(request);
     const sessionToken =
       this.configService.get('COOKIE_MODE') === 'true'
         ? request.cookies?.sessionToken

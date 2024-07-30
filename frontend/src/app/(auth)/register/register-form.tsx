@@ -2,8 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -15,16 +13,18 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import {
   RegisterBodyType,
   RegisterBody,
 } from '@/schemaValidations/auth.schema';
-import { log } from 'console';
-import envConfig from '@/config';
-import { useEffect } from 'react';
+import apiAuthRequest from '@/apiRequests/auth';
+import { useRouter } from 'next/navigation';
+import { clientSessionToken } from '@/lib/http';
 
 export function RegisterForm() {
+  const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
     defaultValues: {
@@ -35,19 +35,36 @@ export function RegisterForm() {
     },
   });
 
-  async function onSubmit(value: RegisterBodyType) {
-    const result = await fetch(
-      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(value),
+  async function onSubmit(values: RegisterBodyType) {
+    try {
+      const result = await apiAuthRequest.register(values);
+      toast({
+        description: result.payload.message,
+      });
+      await apiAuthRequest.auth({ sessionToken: result.payload.data.token });
+      router.push('/user');
+    } catch (error: any) {
+      const errors = error.payload.errors as {
+        field: string;
+        message: string;
+      }[];
+      const status = error.status as number;
+      if (status === 422) {
+        errors.forEach((error) => {
+          form.setError(error.field as 'email' | 'password', {
+            type: 'server',
+            message: error.message,
+          });
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: error.payload.message,
+          variant: 'destructive',
+        });
       }
-    ).then((res) => res.json());
+    }
   }
-
   return (
     <Form {...form}>
       <form
