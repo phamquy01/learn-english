@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user/entities';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from 'src/app.controller';
-import { Session } from 'src/auth/entities';
+import { AccountModule } from './account/account.module';
+import { Account, Session } from 'src/entities';
 
 @Module({
   imports: [
@@ -19,11 +18,11 @@ import { Session } from 'src/auth/entities';
       username: 'quypham',
       password: 'Abc123456',
       database: 'backend-db',
-      entities: [User, Session],
+      entities: [Account, Session],
       synchronize: true,
     }),
     AuthModule,
-    UserModule,
+    AccountModule,
   ],
   controllers: [AppController],
 })

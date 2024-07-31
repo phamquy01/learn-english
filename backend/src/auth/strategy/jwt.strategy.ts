@@ -3,16 +3,16 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Strategy, ExtractJwt } from 'passport-jwt';
-import { User } from 'src/user/entities';
 import { Repository } from 'typeorm';
 import { Request as RequestType } from 'express';
+import { Account } from 'src/entities';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     configService: ConfigService,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(Account)
+    private accountRepository: Repository<Account>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -35,12 +35,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: { sub: number; email: string }) {
-    const user = await this.userRepository.findOne({
+    const account = await this.accountRepository.findOne({
       where: {
         id: payload.sub,
       },
     });
-    delete user.hashedPassword;
-    return user;
+    delete account.hashedPassword;
+    return account;
   }
 }

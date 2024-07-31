@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const privatePaths = ['/user'];
+const privatePaths = ['/account'];
 const authPaths = ['/register', '/login'];
 export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get('sessionToken');
@@ -12,12 +12,12 @@ export function middleware(request: NextRequest) {
   }
 
   if (authPaths.some((path) => pathname.startsWith(path)) && sessionToken) {
-    return NextResponse.redirect(new URL('/user', request.url));
+    return NextResponse.redirect(new URL('/account', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/register', '/login', '/user'],
+  matcher: ['/register', '/login', '/account'],
 };

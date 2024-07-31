@@ -42,7 +42,7 @@ export function RegisterForm() {
         description: result.payload.message,
       });
       await apiAuthRequest.auth({ sessionToken: result.payload.data.token });
-      router.push('/user');
+      router.push('/account');
     } catch (error: any) {
       const errors = error.payload.errors as {
         field: string;

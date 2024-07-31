@@ -1,8 +1,8 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDTO } from './dto';
 import { ConfigService } from '@nestjs/config';
-import { Response as ResponseType } from 'express';
+import { Response as ResponseType, Request as RequestType } from 'express';
+import { AuthDTO } from 'src/dto';
 
 @Controller('auth')
 export class AuthController {
@@ -14,9 +14,9 @@ export class AuthController {
   @Post('register')
   async register(
     @Res({ passthrough: true }) response: ResponseType,
-    @Body() authDTO: AuthDTO,
+    @Body() body: AuthDTO,
   ) {
-    const { user, session } = await this.authService.register(authDTO);
+    const { account, session } = await this.authService.register(body);
     if (this.configService.get('COOKIE_MODE') === 'true') {
       response.cookie('sessionToken', session.token, {
         httpOnly: true,
@@ -25,31 +25,40 @@ export class AuthController {
         secure: true,
       });
       return {
-        message: 'Đăng ký thành công',
         data: {
           token: session.token,
+          refreshToken: session.refreshToken,
           expiresAt: session.expiresAt,
-          user,
+          account: {
+            id: account.id,
+            name: account.name,
+            email: account.email,
+          },
         },
+        message: 'Đăng ký thành công',
       };
     }
-
     return {
-      message: 'Đăng ký thành công',
       data: {
         token: session.token,
+        refreshToken: session.refreshToken,
         expiresAt: session.expiresAt,
-        user,
+        account: {
+          id: account.id,
+          name: account.name,
+          email: account.email,
+        },
       },
+      message: 'Đăng ký thành công',
     };
   }
 
   @Post('login')
   async login(
     @Res({ passthrough: true }) response: ResponseType,
-    @Body() authDTO: AuthDTO,
+    @Body() body: AuthDTO,
   ) {
-    const { user, session } = await this.authService.login(authDTO);
+    const { account, session } = await this.authService.login(body);
     if (this.configService.get('COOKIE_MODE') === 'true') {
       response.cookie('sessionToken', session.token, {
         httpOnly: true,
@@ -58,21 +67,45 @@ export class AuthController {
         secure: true,
       });
       return {
-        message: 'Đăng nhập thành công',
         data: {
           token: session.token,
+          refreshToken: session.refreshToken,
           expiresAt: session.expiresAt,
-          user,
+          account: {
+            id: account.id,
+            name: account.name,
+            email: account.email,
+          },
         },
+        message: 'Đăng nhập thành công',
       };
     }
     return {
-      message: 'Đăng nhập thành công',
       data: {
         token: session.token,
+        refreshToken: session.refreshToken,
         expiresAt: session.expiresAt,
-        user,
+        account: {
+          id: account.id,
+          name: account.name,
+          email: account.email,
+        },
       },
+      message: 'Đăng nhập thành công',
+    };
+  }
+
+  @Post('logout')
+  async logout(@Req() request: RequestType) {
+    console.log(request.cookies);
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Body() { refresh_token }): Promise<any> {
+    const result = await this.authService.refreshToken(refresh_token);
+    return {
+      data: result,
+      message: 'Refresh token thành công',
     };
   }
 }

@@ -5,7 +5,6 @@ import {
   RegisterBodyType,
   RegisterResType,
 } from '@/schemaValidations/auth.schema';
-import { register } from 'module';
 
 const apiAuthRequest = {
   login: (body: LoginBodyType) => http.post<LoginResType>('/auth/login', body),

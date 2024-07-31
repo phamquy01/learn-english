@@ -1,4 +1,4 @@
-import { Session } from 'src/auth/entities/session.entity';
+import { Session } from 'src/entities/session.entity';
 import {
   Entity,
   Column,
@@ -9,15 +9,12 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class User {
+export class Account {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ nullable: true })
-  firstName?: string;
-
-  @Column({ nullable: true })
-  lastName?: string;
+  name?: string;
 
   @Column({ unique: true })
   email: string;
@@ -38,6 +35,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Session, (session) => session.user)
+  @OneToMany(() => Session, (session) => session.account)
   sessions: Session[];
 }
