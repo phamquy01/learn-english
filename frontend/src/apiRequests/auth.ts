@@ -14,6 +14,18 @@ const apiAuthRequest = {
     http.post<{ sessionToken: string }>('/api/auth', body, {
       baseUrl: '',
     }),
+
+  logoutFromNextServerToServer: (sessionToken: string) =>
+    http.post('/auth/logout', null, {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+      },
+    }),
+
+  logoutFromNextClientToServer: () =>
+    http.post('/api/auth/logout', null, {
+      baseUrl: '',
+    }),
 };
 
 export default apiAuthRequest;

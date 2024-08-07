@@ -96,8 +96,30 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Req() request: RequestType) {
-    console.log(request.cookies);
+  async logout(
+    @Req() request: RequestType,
+    @Res({ passthrough: true }) response: ResponseType,
+  ) {
+    const sessionToken =
+      this.configService.get('COOKIE_MODE') === 'true'
+        ? request.cookies?.sessionToken
+        : request.headers.authorization?.split(' ')[1];
+
+    const message = await this.authService.logout(sessionToken);
+    if (this.configService.get('COOKIE_MODE') === 'true') {
+      response.clearCookie('sessionToken', {
+        httpOnly: true,
+        path: '/',
+        sameSite: 'none',
+        secure: true,
+      });
+      return {
+        message,
+      };
+    }
+    return {
+      message,
+    };
   }
 
   @Post('refresh-token')

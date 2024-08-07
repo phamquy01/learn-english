@@ -1,15 +1,47 @@
 import envConfig from '@/config';
+import { nomalizePath } from '@/lib/utils';
 import { LoginResType } from '@/schemaValidations/auth.schema';
 
 type CustomOptions = RequestInit & {
   baseUrl?: string;
 };
 
-class HttpError extends Error {
+const ENTITI_ERROR_STATUS = 422;
+type EntititErrorPayload = {
+  message: string;
+  errors: {
+    field: string;
+    message: string;
+  }[];
+};
+
+export class HttpError extends Error {
   status: number;
-  payload: any;
+  payload: {
+    message: string;
+    [key: string]: any;
+  };
   constructor({ status, payload }: { status: number; payload: any }) {
     super('Http Error');
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
+export class EntityError extends HttpError {
+  status: 422;
+  payload: EntititErrorPayload;
+  constructor({
+    status,
+    payload,
+  }: {
+    status: 422;
+    payload: EntititErrorPayload;
+  }) {
+    super({ status, payload });
+    if (status !== ENTITI_ERROR_STATUS) {
+      throw new Error('EntitiError must have status 422');
+    }
     this.status = status;
     this.payload = payload;
   }
@@ -68,13 +100,26 @@ const request = async <Response>(
   };
 
   if (!res.ok) {
-    throw new HttpError(data);
+    if (res.status === ENTITI_ERROR_STATUS) {
+      throw new EntityError(
+        data as {
+          status: 422;
+          payload: EntititErrorPayload;
+        }
+      );
+    } else {
+      throw new HttpError(data);
+    }
   }
 
-  if (['/auth/login', '/auth/register'].includes(url)) {
-    clientSessionToken.value = (payload as LoginResType).data.token;
-  } else if ('/auth/logout'.includes(url)) {
-    clientSessionToken.value = '';
+  if (typeof window !== 'undefined') {
+    if (
+      ['auth/login', 'auth/register'].some((item) => item === nomalizePath(url))
+    ) {
+      clientSessionToken.value = (payload as LoginResType).data.token;
+    } else if ('auth/logout' === nomalizePath(url)) {
+      clientSessionToken.value = '';
+    }
   }
   return data;
 };

@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -135,7 +139,19 @@ export class AuthService {
     }
   }
 
-  logout() {
+  async logout(sessionToken: string) {
+    const session = await this.sessionRepository.findOne({
+      where: { token: sessionToken },
+    });
+
+    if (!session) {
+      throw new UnauthorizedException('Session không tồn tại');
+    }
+
+    await this.sessionRepository.delete({
+      token: sessionToken,
+    });
+
     return {
       message: 'Đăng xuất thành công',
     };
@@ -161,6 +177,7 @@ export class AuthService {
         account: { id },
       },
       {
+        token: accessToken,
         refreshToken,
       },
     );
