@@ -1,7 +1,18 @@
+import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24"></main>
+    <main>
+      <div className="px-10 flex flex-col justify-center items-center">
+        <h1 className="text-4xl font-bold text-center my-20">
+          Welcome to Translate
+        </h1>
+        <button className="p-4 border-solid border-2 border-indigo-600 rounded-md bg-indigo-600 text-[#fff]">
+          <Link href="/translate">Translate now</Link>
+        </button>
+      </div>
+    </main>
   );
 }

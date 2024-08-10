@@ -21,6 +21,7 @@ export default function RootLayout({
 }>) {
   const cookieStore = cookies();
   const sessionToken = cookieStore.get('sessionToken');
+
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -32,9 +33,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
+          <Header sessionToken={sessionToken?.value} />
           <AppProvider initialSessionToken={sessionToken?.value}>
-            {children}
+            <div className="max-w-6xl mx-auto"> {children}</div>
           </AppProvider>
         </ThemeProvider>
       </body>

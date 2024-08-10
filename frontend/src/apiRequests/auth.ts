@@ -22,10 +22,20 @@ const apiAuthRequest = {
       },
     }),
 
-  logoutFromNextClientToServer: () =>
-    http.post('/api/auth/logout', null, {
-      baseUrl: '',
-    }),
+  logoutFromNextClientToServer: (
+    force?: boolean | undefined,
+    signal?: AbortSignal | undefined
+  ) =>
+    http.post(
+      '/api/auth/logout',
+      {
+        force,
+      },
+      {
+        baseUrl: '',
+        signal,
+      }
+    ),
 };
 
 export default apiAuthRequest;

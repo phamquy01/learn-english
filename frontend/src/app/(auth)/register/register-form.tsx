@@ -45,7 +45,7 @@ export function RegisterForm() {
         description: result.payload.message,
       });
       await apiAuthRequest.auth({ sessionToken: result.payload.data.token });
-      router.push('/home');
+      router.push('/translate');
     } catch (error: any) {
       handleErrorApi({ error, setError: form.setError });
     } finally {
