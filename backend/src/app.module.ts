@@ -4,25 +4,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from 'src/app.controller';
 import { AccountModule } from './account/account.module';
-import { Account, Session } from 'src/entities';
+import { Account, Session, Translation } from 'src/entities';
+import { TranslateModule } from './translate/translate.module';
+import { dataSourceOptions } from 'db/data-source';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3309,
-      username: 'quypham',
-      password: 'Abc123456',
-      database: 'backend-db',
-      entities: [Account, Session],
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
     AccountModule,
+    TranslateModule,
   ],
   controllers: [AppController],
 })

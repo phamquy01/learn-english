@@ -6,9 +6,7 @@ import React, { useEffect } from 'react';
 export default function Profile() {
   useEffect(() => {
     const fetchApi = async () => {
-      const result = await apiAccountRequests.meClient();
-
-      console.log(result);
+      await apiAccountRequests.meClient();
     };
     fetchApi();
   }, []);

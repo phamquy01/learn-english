@@ -34,10 +34,8 @@ export default function TranslateForm({
   const [output, setOutput] = useState('');
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
 
-  console.log(state);
-
   useEffect(() => {
-    if (!input) return;
+    if (!input.trim) return;
 
     const delayDebounceFn = setTimeout(() => {
       sunbmitBtnRef.current?.click();

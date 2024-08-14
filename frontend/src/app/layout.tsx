@@ -33,7 +33,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header sessionToken={sessionToken?.value} />
+          <Header />
           <AppProvider initialSessionToken={sessionToken?.value}>
             <div className="max-w-6xl mx-auto"> {children}</div>
           </AppProvider>

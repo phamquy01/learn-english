@@ -3,14 +3,18 @@
 import { State } from '@/app/translate/TranslateForm';
 import { v4 } from 'uuid';
 import axios from 'axios';
+import apiTranslateRequest from '@/apiRequests/translate';
+import { cookies } from 'next/headers';
 
 const key = process.env.AZURE_TEXT_TRANSLATION_KEY;
 const endpoint = process.env.AZUE_TEXT_TRANSLATION;
 const location = process.env.AZUE_TEXT_LOCATION;
-const AUTHENTICATION_ERROR_STATUS = 401;
 
 async function translate(prevState: State, formData: FormData) {
-  const rawData = {
+  const cookieStore = cookies();
+  const sessionToken = cookieStore.get('sessionToken');
+
+  const rawFromData = {
     input: formData.get('input') as string,
     inputLanguage: formData.get('inputLanguage') as string,
     output: formData.get('output') as string,
@@ -29,12 +33,13 @@ async function translate(prevState: State, formData: FormData) {
     },
     params: {
       'api-version': '3.0',
-      from: rawData.inputLanguage === 'auto' ? null : rawData.inputLanguage,
-      to: rawData.outputLanguage,
+      from:
+        rawFromData.inputLanguage === 'auto' ? null : rawFromData.inputLanguage,
+      to: rawFromData.outputLanguage,
     },
     data: [
       {
-        text: rawData.input,
+        text: rawFromData.input,
       },
     ],
     responseType: 'json',
@@ -47,6 +52,29 @@ async function translate(prevState: State, formData: FormData) {
   }
 
   // push to DB
+
+  if (rawFromData.inputLanguage === 'auto') {
+    rawFromData.inputLanguage = data[0].detectedLanguage.language;
+  }
+
+  try {
+    const translation = {
+      to: rawFromData.outputLanguage,
+      from: rawFromData.inputLanguage,
+      fromText: rawFromData.input,
+      toText: data[0].translations[0].text,
+    };
+
+    const result = await apiTranslateRequest.addOrUpdateTranslate(
+      sessionToken?.value ?? '',
+      translation
+    );
+  } catch (error) {
+    console.error(
+      'Error adding translation to user: ',
+      (error as Error).message
+    );
+  }
 
   return {
     ...prevState,

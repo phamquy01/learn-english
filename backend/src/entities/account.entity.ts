@@ -1,4 +1,5 @@
 import { Session } from 'src/entities/session.entity';
+import { Translation } from 'src/entities/translate.entity';
 import {
   Entity,
   Column,
@@ -37,4 +38,7 @@ export class Account {
 
   @OneToMany(() => Session, (session) => session.account)
   sessions: Session[];
+
+  @OneToMany(() => Translation, (translate) => translate.account)
+  translations: Translation[];
 }

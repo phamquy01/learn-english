@@ -4,6 +4,7 @@ import { type ClassValue, clsx } from 'clsx';
 import { UseFormSetError } from 'react-hook-form';
 import { twMerge } from 'tailwind-merge';
 import { set } from 'zod';
+import jwt from 'jsonwebtoken';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -45,5 +46,6 @@ export const nomalizePath = (path: string) => {
   return path.startsWith('/') ? path.slice(1) : path;
 };
 
-
-
+export const decodeJwt = <Payload = any>(token: string) => {
+  return jwt.decode(token) as Payload;
+};

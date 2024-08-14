@@ -9,7 +9,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-center my-20">
           Welcome to Translate
         </h1>
-        <button className="p-4 border-solid border-2 border-indigo-600 rounded-md bg-indigo-600 text-[#fff]">
+        <button className="w-[200px] h-[50px] border-solid border-2 border-indigo-600 rounded-md bg-indigo-600 text-[#fff]">
           <Link href="/translate">Translate now</Link>
         </button>
       </div>
