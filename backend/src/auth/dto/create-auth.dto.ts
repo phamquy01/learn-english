@@ -6,7 +6,7 @@ import {
   IsOptional,
 } from 'class-validator';
 
-export class AuthDTO {
+export class CreateAuthDTO {
   @IsNotEmpty()
   @IsEmail()
   email: string;
@@ -17,10 +17,5 @@ export class AuthDTO {
   password: string;
 
   @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @IsOptional()
-  @IsString()
-  lastName?: string;
+  name?: string;
 }

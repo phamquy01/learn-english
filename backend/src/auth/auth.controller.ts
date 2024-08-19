@@ -1,133 +1,60 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
-import { Response as ResponseType, Request as RequestType } from 'express';
-import { AuthDTO } from 'src/dto';
+import { LocalAuthGuard } from 'src/auth/passport/local-auth.guard';
+import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
+import { Public } from 'src/decorator/customize';
+import { CreateAuthDTO } from 'src/auth/dto/create-auth.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private configService: ConfigService,
     private authService: AuthService,
+    private readonly mailerService: MailerService,
   ) {}
 
-  @Post('register')
-  async register(
-    @Res({ passthrough: true }) response: ResponseType,
-    @Body() body: AuthDTO,
-  ) {
-    const { account, session } = await this.authService.register(body);
-    if (this.configService.get('COOKIE_MODE') === 'true') {
-      response.cookie('sessionToken', session.token, {
-        httpOnly: true,
-        path: '/',
-        sameSite: 'none',
-        secure: true,
-      });
-      return {
-        data: {
-          token: session.token,
-          refreshToken: session.refreshToken,
-          expiresAt: session.expiresAt,
-          account: {
-            id: account.id,
-            name: account.name,
-            email: account.email,
-          },
-        },
-        message: 'Đăng ký thành công',
-      };
-    }
-    return {
-      data: {
-        token: session.token,
-        refreshToken: session.refreshToken,
-        expiresAt: session.expiresAt,
-        account: {
-          id: account.id,
-          name: account.name,
-          email: account.email,
-        },
-      },
-      message: 'Đăng ký thành công',
-    };
-  }
-
   @Post('login')
-  async login(
-    @Res({ passthrough: true }) response: ResponseType,
-    @Body() body: AuthDTO,
-  ) {
-    const { account, session } = await this.authService.login(body);
-    if (this.configService.get('COOKIE_MODE') === 'true') {
-      response.cookie('sessionToken', session.token, {
-        httpOnly: true,
-        path: '/',
-        sameSite: 'none',
-        secure: true,
-      });
-      return {
-        data: {
-          token: session.token,
-          refreshToken: session.refreshToken,
-          expiresAt: session.expiresAt,
-          account: {
-            id: account.id,
-            name: account.name,
-            email: account.email,
-          },
-        },
-        message: 'Đăng nhập thành công',
-      };
-    }
-    return {
-      data: {
-        token: session.token,
-        refreshToken: session.refreshToken,
-        expiresAt: session.expiresAt,
-        account: {
-          id: account.id,
-          name: account.name,
-          email: account.email,
-        },
+  @Public()
+  @UseGuards(LocalAuthGuard)
+  login(@Request() req) {
+    return this.authService.login(req.user);
+  }
+
+  @Post('register')
+  @Public()
+  register(@Body() registerDTO: CreateAuthDTO) {
+    return this.authService.register(registerDTO);
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  getProfile(@Request() req) {
+    return req.user;
+  }
+
+  @Get('mail')
+  @Public()
+  mail() {
+    this.mailerService.sendMail({
+      to: 'taolaquy69@gmail.com', // list of receivers
+      subject: 'Testing Nest MailerModule ✔', // Subject line
+      text: 'welcome', // plaintext body
+      template: 'register',
+      context: {
+        name: 'taolaquy',
+        activationCode: 123456,
       },
-      message: 'Đăng nhập thành công',
-    };
-  }
+    });
 
-  @Post('logout')
-  async logout(
-    @Req() request: RequestType,
-    @Res({ passthrough: true }) response: ResponseType,
-  ) {
-    const sessionToken =
-      this.configService.get('COOKIE_MODE') === 'true'
-        ? request.cookies?.sessionToken
-        : request.headers.authorization?.split(' ')[1];
-
-    const message = await this.authService.logout(sessionToken);
-    if (this.configService.get('COOKIE_MODE') === 'true') {
-      response.clearCookie('sessionToken', {
-        httpOnly: true,
-        path: '/',
-        sameSite: 'none',
-        secure: true,
-      });
-      return {
-        message,
-      };
-    }
-    return {
-      message,
-    };
-  }
-
-  @Post('refresh-token')
-  async refreshToken(@Body() { refresh_token }): Promise<any> {
-    const result = await this.authService.refreshToken(refresh_token);
-    return {
-      data: result,
-      message: 'Refresh token thành công',
-    };
+    return 'ok';
   }
 }
