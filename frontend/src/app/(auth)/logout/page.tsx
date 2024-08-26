@@ -1,7 +1,7 @@
 'use client';
 
 import apiAuthRequest from '@/apiRequests/auth';
-import { clientSessionToken } from '@/lib/http';
+import { clientAccessToken } from '@/lib/http';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 
@@ -9,12 +9,12 @@ export default function Logout() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const sessionToken = searchParams.get('sessionToken');
+  const accessToken = searchParams.get('accessToken');
   useEffect(() => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
     const signal = controller.signal;
-    if (sessionToken === clientSessionToken.value) {
+    if (accessToken === clientAccessToken.value) {
       apiAuthRequest
         .logoutFromNextClientToServer(true, signal)
         .then(() => {
@@ -33,6 +33,6 @@ export default function Logout() {
       clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [sessionToken, router, pathname]);
+  }, [accessToken, router, pathname]);
   return <div>Logout</div>;
 }

@@ -20,10 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = cookies();
-  const sessionToken = cookieStore.get('sessionToken');
+  const accessToken = cookieStore.get('accessToken');
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body className={inter.className}>
         {' '}
         <Toaster />
@@ -34,7 +34,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <AppProvider initialSessionToken={sessionToken?.value}>
+          <AppProvider initialAccessToken={accessToken?.value}>
             <div className="max-w-6xl mx-auto"> {children}</div>
           </AppProvider>
         </ThemeProvider>

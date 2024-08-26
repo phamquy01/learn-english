@@ -4,24 +4,39 @@ import {
   LoginResType,
   RegisterBodyType,
   RegisterResType,
+  VerifyCodeBodyType,
+  VerifyCodeResType,
 } from '@/schemaValidations/auth.schema';
+import { ResendEmailResType } from '@/schemaValidations/user.schema';
 
 const apiAuthRequest = {
-  login: (body: LoginBodyType) => http.post<LoginResType>('/auth/login', body),
+  // login
+  login: (body: LoginBodyType) =>
+    http.post<LoginResType>('api/v1/auth/login', body),
+
+  // register
   register: (body: RegisterBodyType) =>
-    http.post<RegisterResType>('/auth/register', body),
-  auth: (body: { sessionToken: string }) =>
-    http.post<{ sessionToken: string }>('/api/auth', body, {
+    http.post<RegisterResType>('api/v1/auth/register', body),
+
+  // register
+  auth: (body: { accessToken: string }) =>
+    http.post<{ accessToken: string }>('/api/auth', body, {
       baseUrl: '',
     }),
 
-  logoutFromNextServerToServer: (sessionToken: string) =>
-    http.post('/auth/logout', null, {
+  // checkCode
+  checkCode: (body: VerifyCodeBodyType) =>
+    http.post<VerifyCodeResType>('/api/v1/auth/check-code', body),
+
+  // lout out from next server to server
+  logoutFromNextServerToServer: (accessToken: string) =>
+    http.post('/api/v1/auth/logout', null, {
       headers: {
-        Authorization: `Bearer ${sessionToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     }),
 
+  // logout from next client to server
   logoutFromNextClientToServer: (
     force?: boolean | undefined,
     signal?: AbortSignal | undefined
@@ -36,6 +51,10 @@ const apiAuthRequest = {
         signal,
       }
     ),
+
+  // resend email
+  resendEmail: (body: { email: string }) =>
+    http.post<ResendEmailResType>('/api/v1/auth/resend-code', body),
 };
 
 export default apiAuthRequest;

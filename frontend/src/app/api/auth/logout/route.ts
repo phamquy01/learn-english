@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 export async function POST(request: Request) {
   const req = await request.json();
   const force = req.force as boolean | undefined;
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken');
 
   if (force) {
     return Response.json(
@@ -13,16 +15,13 @@ export async function POST(request: Request) {
       },
       {
         headers: {
-          'Set-Cookie': `sessionToken=; Path=/; HttpOnly; Max-Age=0`,
+          'Set-Cookie': `accessToken=; Path=/; HttpOnly; Max-Age=0`,
         },
       }
     );
   }
 
-  const cookieStore = cookies();
-  const sessionToken = cookieStore.get('sessionToken');
-
-  if (!sessionToken) {
+  if (!accessToken) {
     return Response.json(
       { message: 'không nhận được session token' },
       { status: 400 }
@@ -31,10 +30,10 @@ export async function POST(request: Request) {
 
   try {
     const resultFromNextServer =
-      await apiAuthRequest.logoutFromNextServerToServer(sessionToken.value);
+      await apiAuthRequest.logoutFromNextServerToServer(accessToken.value);
     return Response.json(resultFromNextServer, {
       headers: {
-        'Set-Cookie': `sessionToken=; Path=/; HttpOnly; Max-Age=0`,
+        'Set-Cookie': `accessToken=; Path=/; HttpOnly; Max-Age=0`,
       },
     });
   } catch (error) {

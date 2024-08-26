@@ -11,20 +11,21 @@ export const TranslationBody = z
 
 export type TranslationBodyType = z.TypeOf<typeof TranslationBody>;
 
-export const TranslationSchema = z
+const Translations = z.object({
+  text: z.string(),
+  to: z.string(),
+});
+
+const TranslationSchema = z
   .object({
-    id: z.string(),
-    fromText: z.string(),
-    from: z.string(),
-    toText: z.string(),
-    to: z.string(),
-    timestamp: z.date(),
+    detectedLanguage: z.object({
+      language: z.string(),
+      score: z.number(),
+    }),
+    translations: z.array(Translations),
   })
   .strict();
 
-export const TranslationRes = z.object({
-  translations: TranslationSchema,
-  message: z.string(),
-});
+export const TranslationRes = z.array(TranslationSchema);
 
 export type TranslationResType = z.TypeOf<typeof TranslationRes>;

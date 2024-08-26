@@ -1,7 +1,8 @@
 import { decodeJwt } from '@/lib/utils';
+import { redirect } from 'next/navigation';
 
 type PayloadJwt = {
-  sub: number;
+  sub: string;
   email: string;
   iat: number;
   exp: number;
@@ -9,22 +10,22 @@ type PayloadJwt = {
 
 export async function POST(request: Request) {
   const res = await request.json();
-  const sessionToken = res.sessionToken as string;
+  const accessToken = res.accessToken as string;
 
-  if (!sessionToken) {
+  if (!accessToken) {
     return Response.json(
-      { message: 'không nhận được session token' },
+      { message: 'không nhận được access token' },
       { status: 400 }
     );
   }
 
-  const payload = decodeJwt<PayloadJwt>(sessionToken);
+  const payload = decodeJwt<PayloadJwt>(accessToken);
 
   const expirsDate = new Date(payload.exp * 1000).toUTCString();
 
   return Response.json(res, {
     headers: {
-      'Set-Cookie': `sessionToken=${sessionToken}; Path=/; HttpOnly; Expires=${expirsDate}; SameSite=lax; Secure`,
+      'Set-Cookie': `accessToken=${accessToken}; Path=/;Expires=${expirsDate} ;HttpOnly; SameSite=lax; Secure`,
     },
   });
 }

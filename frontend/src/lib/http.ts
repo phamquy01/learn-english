@@ -50,7 +50,7 @@ export class EntityError extends HttpError {
   }
 }
 
-class ClientSessionToken {
+class ClientAccessToken {
   private token = '';
   get value() {
     return this.token;
@@ -63,7 +63,7 @@ class ClientSessionToken {
   }
 }
 
-export const clientSessionToken = new ClientSessionToken();
+export const clientAccessToken = new ClientAccessToken();
 let clientLogoutRequest: null | Promise<any> = null;
 
 const request = async <Response>(
@@ -74,8 +74,8 @@ const request = async <Response>(
   const body = options?.body ? JSON.stringify(options.body) : undefined;
   const baseHeaders = {
     'Content-Type': 'application/json',
-    Authorization: clientSessionToken.value
-      ? `Bearer ${clientSessionToken.value}`
+    Authorization: clientAccessToken.value
+      ? `Bearer ${clientAccessToken.value}`
       : '',
   };
   const baseUrl =
@@ -98,6 +98,7 @@ const request = async <Response>(
   });
 
   const payload: Response = await res.json();
+
   const data = {
     status: res.status,
     payload,
@@ -122,14 +123,14 @@ const request = async <Response>(
             },
           });
           await clientLogoutRequest;
-          clientSessionToken.value = '';
+          clientAccessToken.value = '';
           location.href = '/login';
         }
       } else {
-        const sessionToken = (options?.headers as any)?.Authorization.split(
+        const accessToken = (options?.headers as any)?.Authorization.split(
           'Bearer '
         )[1];
-        redirect(`/logout?sessionToken=${sessionToken}`);
+        redirect(`/logout?accessToken=${accessToken}`);
       }
     } else {
       throw new HttpError(data);
@@ -140,9 +141,9 @@ const request = async <Response>(
     if (
       ['auth/login', 'auth/register'].some((item) => item === nomalizePath(url))
     ) {
-      clientSessionToken.value = (payload as LoginResType).data.token;
+      clientAccessToken.value = (payload as LoginResType).data.accessToken;
     } else if ('auth/logout' === nomalizePath(url)) {
-      clientSessionToken.value = '';
+      clientAccessToken.value = '';
     }
   }
   return data;

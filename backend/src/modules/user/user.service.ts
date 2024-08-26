@@ -10,12 +10,16 @@ import { CreateAuthDTO } from 'src/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Token } from 'src/modules/token/entities/token.entity';
+import { CodeAuthDTO } from 'src/auth/dto/code-auth.dto';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
     private readonly mailerService: MailerService,
+    @InjectRepository(Token)
+    private readonly tokenRepository: Repository<Token>,
   ) {}
 
   async finByEmail(email: string) {
@@ -27,6 +31,18 @@ export class UserService {
     if (user) return true;
     return false;
   };
+
+  sendEmail(user: User) {
+    this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Xác nhận tài khoản',
+      template: 'register',
+      context: {
+        name: user.name ?? user.email,
+        activationCode: user.codeId,
+      },
+    });
+  }
 
   async getUsers(query: string, current: number, pageSize: number) {
     const { filter, sort } = aqp(query);
@@ -93,12 +109,22 @@ export class UserService {
   }
 
   async deleteUser(id: string) {
+    const tokenId = await this.tokenRepository.findOne({
+      where: { user: { id } },
+    });
+
+    if (tokenId) {
+      await this.tokenRepository.delete({ id: tokenId.id });
+    }
+
     const userId = await this.userRepository.findOne({
       where: { id },
     });
+
     if (!userId) {
       throw new BadRequestException(`Không tìm thấy user id: ${id}`);
     }
+
     return await this.userRepository.delete({ id });
   }
 
@@ -115,23 +141,76 @@ export class UserService {
       password: hashedPassword,
       isActive: false,
       codeId: uuidv4(),
-      codeExpired: dayjs().add(1, 'minute').toDate(),
+      // codeExpired: dayjs().add(30, 'seconds').toDate(),
+      codeExpired: dayjs().add(5, 'minutes').toDate(),
     });
 
-    this.mailerService.sendMail({
-      to: email,
-      subject: 'Xác nhận tài khoản',
-      template: 'register',
-      context: {
-        name: user.name ?? user.email,
-        activationCode: user.codeId,
-      },
-    });
+    this.sendEmail(user);
 
     const savedUser = await this.userRepository.save(user);
 
     return {
-      id: savedUser.id,
+      message: 'register success',
+      user: {
+        id: savedUser.id,
+        email: savedUser.email,
+        name: savedUser.name,
+      },
+    };
+  }
+
+  async checCode(codeAuthDTO: CodeAuthDTO) {
+    const user = await this.userRepository.findOne({
+      where: { id: codeAuthDTO.id, codeId: codeAuthDTO.code },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Mã code không hợp lệ hoặc đã hết hạn');
+    }
+
+    const isBeforeExpired = dayjs().isBefore(user.codeExpired);
+
+    if (isBeforeExpired) {
+      await this.userRepository.update(
+        {
+          id: user.id,
+        },
+        { isActive: true },
+      );
+      return {
+        message: 'Xác nhận thành công',
+      };
+    } else {
+      throw new BadRequestException('Mã code không hợp lệ hoặc đã hết hạn');
+    }
+  }
+
+  async resendCode(email: string) {
+    await this.userRepository.update(
+      {
+        email,
+      },
+      {
+        codeId: uuidv4(),
+        codeExpired: dayjs().add(5, 'minutes').toDate(),
+      },
+    );
+
+    const user = await this.finByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại');
+    }
+
+    if (user.isActive) {
+      throw new BadRequestException('Tài khoản đã được kích hoạt');
+    }
+
+    this.sendEmail(user);
+
+    return {
+      id: user.id,
+      message: 'Gửi lại mã code thành công',
     };
   }
 }

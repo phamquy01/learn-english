@@ -1,9 +1,11 @@
+import { Token } from 'src/modules/token/entities/token.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -56,8 +58,8 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // @OneToMany(() => Session, (session) => session.user)
-  // sessions: Session[];
+  @OneToMany(() => Token, (token: Token) => token.user)
+  tokens: Token[];
 
   // @OneToMany(() => Translation, (translate) => translate.user)
   // translations: Translation[];

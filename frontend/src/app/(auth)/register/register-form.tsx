@@ -21,6 +21,8 @@ import apiAuthRequest from '@/apiRequests/auth';
 import { useRouter } from 'next/navigation';
 import { handleErrorApi } from '@/lib/utils';
 import { useState } from 'react';
+import { GitHubLogoIcon } from '@radix-ui/react-icons';
+import Link from 'next/link';
 
 export function RegisterForm() {
   const [loading, setLoading] = useState(false);
@@ -44,8 +46,7 @@ export function RegisterForm() {
       toast({
         description: result.payload.message,
       });
-      await apiAuthRequest.auth({ sessionToken: result.payload.data.token });
-      router.push('/translate');
+      router.push(`/verify/${result.payload.user.id}`);
     } catch (error: any) {
       handleErrorApi({ error, setError: form.setError });
     } finally {
@@ -56,8 +57,8 @@ export function RegisterForm() {
   return (
     <Form {...form}>
       <form
+        className="space-y-6"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-2/3 space-y-6 max-w-[600px]"
         noValidate
       >
         <FormField
@@ -65,9 +66,15 @@ export function RegisterForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>name</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
+              <FormLabel className="block text-sm font-medium text-muted-foreground">
+                Name
+              </FormLabel>
+              <FormControl className="mt-1">
+                <Input
+                  className="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-2 placeholder-muted-foreground focus:z-10 focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                  placeholder="username"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -78,9 +85,15 @@ export function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
+              <FormLabel className="block text-sm font-medium text-muted-foreground">
+                Email address
+              </FormLabel>
+              <FormControl className="mt-1">
+                <Input
+                  className="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-2 placeholder-muted-foreground focus:z-10 focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                  placeholder="Email address"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -91,9 +104,15 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
+              <FormLabel className="block text-sm font-medium text-muted-foreground">
+                Password
+              </FormLabel>
+              <FormControl className="mt-1">
+                <Input
+                  className="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-2 placeholder-muted-foreground focus:z-10 focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                  placeholder="Password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -104,16 +123,38 @@ export function RegisterForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>confirmPassword</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
+              <FormLabel className="block text-sm font-medium text-muted-foreground">
+                Confirm password
+              </FormLabel>
+              <FormControl className="mt-1">
+                <Input
+                  className="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-2 placeholder-muted-foreground focus:z-10 focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                  placeholder="Confirm password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Đăng ký</Button>
+        <Button
+          className="group relative flex w-full justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-primary-foreground hover:bg-primary-foreground hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          type="submit"
+        >
+          Đăng ký
+        </Button>
       </form>
+      <div className="flex items-center justify-center">
+        <div className="text-sm">
+          Already have an account?{' '}
+          <Link
+            href="/login"
+            className="font-medium text-primary hover:text-primary-foreground"
+          >
+            Sign In
+          </Link>
+        </div>
+      </div>
     </Form>
   );
 }

@@ -7,17 +7,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ConfigService } from '@nestjs/config';
 import { LocalAuthGuard } from 'src/auth/passport/local-auth.guard';
 import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
 import { Public } from 'src/decorator/customize';
 import { CreateAuthDTO } from 'src/auth/dto/create-auth.dto';
 import { MailerService } from '@nestjs-modules/mailer';
+import { CodeAuthDTO } from 'src/auth/dto/code-auth.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private configService: ConfigService,
     private authService: AuthService,
     private readonly mailerService: MailerService,
   ) {}
@@ -35,6 +34,24 @@ export class AuthController {
     return this.authService.register(registerDTO);
   }
 
+  @Post('check-code')
+  @Public()
+  checkCode(@Body() codeAuthDTO: CodeAuthDTO) {
+    return this.authService.checCode(codeAuthDTO);
+  }
+
+  @Post('resend-code')
+  @Public()
+  resendCode(@Body('email') email: string) {
+    return this.authService.resendCode(email);
+  }
+
+  @Post('logout')
+  @Public()
+  logout(accessToken: string) {
+    return this.authService.logout(accessToken);
+  }
+
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   getProfile(@Request() req) {
@@ -45,9 +62,9 @@ export class AuthController {
   @Public()
   mail() {
     this.mailerService.sendMail({
-      to: 'taolaquy69@gmail.com', // list of receivers
-      subject: 'Testing Nest MailerModule ✔', // Subject line
-      text: 'welcome', // plaintext body
+      to: 'taolaquy69@gmail.com',
+      subject: 'Testing Nest MailerModule ✔',
+      text: 'welcome',
       template: 'register',
       context: {
         name: 'taolaquy',

@@ -8,7 +8,7 @@ import React from 'react';
 
 export default function Header() {
   const cookieStore = cookies();
-  const sessionToken = cookieStore.get('sessionToken');
+  const accessToken = cookieStore.get('accessToken');
 
   return (
     <header className="flex justify-between items-center px-8 border-b mb-5">
@@ -23,7 +23,7 @@ export default function Header() {
           />
         </Link>
       </div>
-      {sessionToken ? (
+      {accessToken ? (
         <div className="flex justify-center items-center">
           <ModeToggle />
           <Menu />
