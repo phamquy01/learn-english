@@ -1,8 +1,10 @@
+import { User } from 'src/modules/user/entities/user.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity()
@@ -25,6 +27,6 @@ export class Translation {
   @CreateDateColumn()
   timestamp: Date;
 
-  // @ManyToOne(() => User, (user) => user.translations)
-  // user: User;
+  @ManyToOne(() => User, (user) => user.translations)
+  user: User;
 }

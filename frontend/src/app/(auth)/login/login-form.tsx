@@ -47,12 +47,10 @@ export function LoginForm() {
       toast({
         description: result.payload.message,
       });
-      const setCookieToClient = await apiAuthRequest.auth({
+      await apiAuthRequest.auth({
         accessToken: result.payload.data.accessToken,
       });
-      if (setCookieToClient) {
-        router.push(`/translate`);
-      }
+      router.push(`/translate`);
     } catch (error: any) {
       setIsModalOpen(true);
       handleErrorApi({ error, setError: form.setError });

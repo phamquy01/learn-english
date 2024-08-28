@@ -1,4 +1,5 @@
 import { Token } from 'src/modules/token/entities/token.entity';
+import { Translation } from 'src/modules/translate/entities/translate.entity';
 import {
   Entity,
   Column,
@@ -61,6 +62,6 @@ export class User {
   @OneToMany(() => Token, (token: Token) => token.user)
   tokens: Token[];
 
-  // @OneToMany(() => Translation, (translate) => translate.user)
-  // translations: Translation[];
+  @OneToMany(() => Translation, (translation) => translation.user)
+  translations: Translation[];
 }
