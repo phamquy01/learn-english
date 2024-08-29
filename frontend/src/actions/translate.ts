@@ -7,10 +7,7 @@ import apiTranslateRequest from '@/apiRequests/translate';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { redirect } from 'next/navigation';
-
-const key = process.env.AZURE_TEXT_TRANSLATION_KEY;
-const endpoint = process.env.AZUE_TEXT_TRANSLATION;
-const location = process.env.AZUE_TEXT_LOCATION;
+import { revalidateTag } from 'next/cache';
 
 async function translate(prevState: State, formData: FormData) {
   const cookieStore = cookies();
@@ -27,9 +24,9 @@ async function translate(prevState: State, formData: FormData) {
   }
 
   const rawFromData = {
+    output: formData.get('output') as string,
     input: formData.get('input') as string,
     inputLanguage: formData.get('inputLanguage') as string,
-    output: formData.get('output') as string,
     outputLanguage: formData.get('outputLanguage') as string,
   };
 
@@ -46,30 +43,27 @@ async function translate(prevState: State, formData: FormData) {
 
   const data = response.payload;
 
-  // push to DB
-
   if (rawFromData.inputLanguage === 'auto') {
     rawFromData.inputLanguage = data[0].detectedLanguage.language;
   }
 
   try {
-    const translation = {
+    const translationData = {
       to: rawFromData.outputLanguage,
       from: rawFromData.inputLanguage,
       fromText: rawFromData.input,
       toText: data[0].translations[0].text,
     };
 
-    // const result = await apiTranslateRequest.addOrUpdateTranslate(
-    //   accessToken?.value ?? '',
-    //   translation
-    // );
+    await apiTranslateRequest.translation(accessToken, translationData);
   } catch (error) {
     console.error(
       'Error adding translation to user: ',
       (error as Error).message
     );
   }
+
+  revalidateTag('translationHistory');
 
   return {
     ...prevState,

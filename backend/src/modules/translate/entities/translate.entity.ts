@@ -3,14 +3,14 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  CreateDateColumn,
   ManyToOne,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
 export class Translation {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   fromText: string;
@@ -24,7 +24,7 @@ export class Translation {
   @Column()
   to: string;
 
-  @CreateDateColumn()
+  @UpdateDateColumn()
   timestamp: Date;
 
   @ManyToOne(() => User, (user) => user.translations)

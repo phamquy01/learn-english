@@ -1,4 +1,5 @@
 import TranslateForm from '@/app/translate/TranslateForm';
+import TranslateHistory from '@/app/translate/TranslateHistory';
 import { cookies } from 'next/headers';
 import React from 'react';
 
@@ -25,6 +26,7 @@ export default async function Translate() {
   return (
     <div className="px-10 xl:px-0 mb-20">
       <TranslateForm languages={languages} />
+      <TranslateHistory />
     </div>
   );
 }

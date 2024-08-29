@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TranslateDTO } from 'src/modules/translate/dto/translate.dto';
 import { Translation } from 'src/modules/translate/entities/translate.entity';
 import { Repository } from 'typeorm';
 
+interface IUserRequest {
+  userId: string;
+  name: string;
+  email: string;
+}
 @Injectable()
 export class TranslateService {
   constructor(
@@ -11,10 +16,48 @@ export class TranslateService {
     private readonly translateRepository: Repository<Translation>,
   ) {}
 
-  async createOrUpdate(user: any, body: TranslateDTO) {
-    console.log('userId', user);
-    console.log('body', body);
+  async getTranslations(user: IUserRequest) {
+    const result = await this.translateRepository.find({
+      where: { user: { id: user.userId } },
+      order: { timestamp: 'DESC' },
+    });
+    return {
+      data: {
+        translations: result,
+        userId: user.userId,
+      },
+      message: 'Translations get list successfully',
+    };
+  }
 
+  async deleteTranslation(userId: string, translationId: string) {
+    const translation = await this.translateRepository.findOne({
+      where: {
+        id: translationId,
+        user: { id: userId },
+      },
+    });
+
+    if (!translation) {
+      throw new BadRequestException('Translation not found');
+    }
+
+    await this.translateRepository.delete(translationId);
+
+    const result = await this.translateRepository.find({
+      where: { user: { id: userId }, id: translationId },
+      order: { timestamp: 'DESC' },
+    });
+    return {
+      data: {
+        translations: result,
+        userId: userId,
+      },
+      message: 'Translation deleted successfully',
+    };
+  }
+
+  async createTranslation(user: IUserRequest, body: TranslateDTO) {
     const translation = await this.translateRepository.findOne({
       where: {
         fromText: body.fromText,
@@ -25,22 +68,48 @@ export class TranslateService {
     });
 
     if (translation) {
-      await this.translateRepository.update(
-        { id: translation.id, user: { id: user.userId } },
-        { ...body },
-      );
-      return await this.translateRepository.findOne({
-        where: { id: translation.id },
-      });
+      return this.updateTranslation(user, body);
     } else {
-      const createTranslation = this.translateRepository.create({
-        fromText: body.fromText,
-        from: body.from,
-        toText: body.toText,
-        to: body.to,
+      const newTranslation = this.translateRepository.create({
+        ...body,
         user: { id: user.userId },
       });
-      return await this.translateRepository.save(createTranslation);
+
+      const result = await this.translateRepository.save(newTranslation);
+
+      return {
+        data: result,
+        message: 'Translation created successfully',
+      };
     }
+  }
+
+  async updateTranslation(user: IUserRequest, body: TranslateDTO) {
+    const translation = await this.translateRepository.findOne({
+      where: {
+        fromText: body.fromText,
+        from: body.from,
+        to: body.to,
+        user: { id: user.userId },
+      },
+    });
+
+    await this.translateRepository.update(
+      {
+        user: { id: user.userId },
+        id: translation.id,
+      },
+      { ...body },
+    );
+    const translationUpdated = await this.translateRepository.findOne({
+      where: {
+        id: translation.id,
+      },
+    });
+
+    return {
+      data: translationUpdated,
+      message: 'Translation updated successfully',
+    };
   }
 }

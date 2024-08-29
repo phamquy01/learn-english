@@ -1,5 +1,6 @@
 'use client';
 import translate from '@/actions/translate';
+import ButtonSubmit from '@/components/ButtonSubmit';
 import { TranslationLanguages } from '@/app/translate/page';
 import {
   Select,
@@ -35,7 +36,7 @@ export default function TranslateForm({
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!input.trim) return;
+    if (!input.trim()) return;
 
     const delayDebounceFn = setTimeout(() => {
       sunbmitBtnRef.current?.click();
@@ -43,6 +44,7 @@ export default function TranslateForm({
 
     return () => clearTimeout(delayDebounceFn);
   }, [input]);
+
   useEffect(() => {
     if (state.output) {
       setOutput(state.output);
@@ -129,8 +131,9 @@ export default function TranslateForm({
             />
           </div>
         </div>
-        <div>
-          <button type="submit" ref={sunbmitBtnRef}>
+        <div className="mt-5 flex justify-end">
+          <ButtonSubmit disable={!input} />
+          <button type="submit" ref={sunbmitBtnRef} hidden>
             Translate
           </button>
         </div>

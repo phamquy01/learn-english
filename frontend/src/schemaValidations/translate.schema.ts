@@ -1,11 +1,14 @@
+import { time } from 'console';
 import { z } from 'zod';
 
 export const TranslationBody = z
   .object({
+    id: z.string(),
     fromText: z.string(),
     from: z.string(),
     toText: z.string(),
     to: z.string(),
+    timestamp: z.date(),
   })
   .strict();
 
@@ -25,6 +28,16 @@ const TranslationSchema = z
     translations: z.array(Translations),
   })
   .strict();
+
+export const TranslationListRes = z.object({
+  data: z.object({
+    userId: z.string(),
+    translations: z.array(TranslationBody),
+  }),
+  message: z.string(),
+});
+
+export type TranslationListResType = z.TypeOf<typeof TranslationListRes>;
 
 export const TranslationRes = z.array(TranslationSchema);
 
