@@ -5,7 +5,6 @@ import {
   TranslationListResType,
   TranslationResType,
 } from '@/schemaValidations/translate.schema';
-import { headers } from 'next/headers';
 import { v4 } from 'uuid';
 
 const key = process.env.AZURE_TEXT_TRANSLATION_KEY;

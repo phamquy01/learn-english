@@ -15,6 +15,10 @@ import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-dom';
+import { Button } from '@/components/ui/button';
+import { Volume2Icon } from 'lucide-react';
+import apiTranslateRequest from '@/apiRequests/translate';
+import RecordAudio from '@/components/RecordAudio';
 
 const initialState = {
   inputLanguage: 'auto',
@@ -34,6 +38,35 @@ export default function TranslateForm({
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
+
+  const playAudio = async () => {
+    const synth = window.speechSynthesis;
+    if (!output || !synth) return;
+    const wordsToSay = new SpeechSynthesisUtterance(output);
+    synth.speak(wordsToSay);
+  };
+
+  const uploadAudio = async (audio: Blob) => {
+    const mimeType = 'audio/webm';
+
+    const file = new File([audio], 'audio.webm', { type: mimeType });
+
+    const formData = new FormData();
+    formData.append('audio', file);
+
+    const response = await fetch('api/transcribeAudio', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    console.log('data', data);
+
+    if (data.text) {
+      setInput(data.text);
+    }
+  };
 
   useEffect(() => {
     if (!input.trim()) return;
@@ -65,6 +98,7 @@ export default function TranslateForm({
             Text
           </p>
         </div>
+        <RecordAudio uploadAudio={uploadAudio} />
       </div>
 
       <form action={formAction}>
@@ -100,27 +134,43 @@ export default function TranslateForm({
             />
           </div>
           <div className="flex-1 space-y-2">
-            <Select name="outputLanguage" defaultValue="vi">
-              <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
-                <SelectValue placeholder="Select a language" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Want us to figure it out?</SelectLabel>
-                  <SelectItem key="auto" value="auto">
-                    Auto-Detection
-                  </SelectItem>
-                </SelectGroup>
-                <SelectGroup>
-                  <SelectLabel>Languages</SelectLabel>
-                  {Object.entries(languages.translation).map(([key, value]) => (
-                    <SelectItem key={key} value={key}>
-                      {value.name}
+            <div className="flex justify-between items-center">
+              <Select name="outputLanguage" defaultValue="vi">
+                <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
+                  <SelectValue placeholder="Select a language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Want us to figure it out?</SelectLabel>
+                    <SelectItem key="auto" value="auto">
+                      Auto-Detection
                     </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>Languages</SelectLabel>
+                    {Object.entries(languages.translation).map(
+                      ([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                          {value.name}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={playAudio}
+                disabled={!output}
+                className="rounded-full"
+              >
+                <Volume2Icon
+                  size={18}
+                  className="text-gray-500 font-medium cursor-pointer disabled:cursor-not-allowed"
+                />
+              </Button>
+            </div>
             <Textarea
               readOnly
               placeholder="type your message here"
