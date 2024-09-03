@@ -6,8 +6,10 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
 } from '@nestjs/common';
+import { Public } from 'src/decorator/customize';
 import { TranslateDTO } from 'src/modules/translate/dto/translate.dto';
 import { TranslateService } from 'src/modules/translate/translate.service';
 @Controller('translation')
@@ -17,6 +19,12 @@ export class TranslateController {
   @Get()
   get(@Request() req) {
     return this.translateService.getTranslations(req.user);
+  }
+
+  @Get('suggestion')
+  @Public()
+  getTextSuggesstion(@Query('text') text: string) {
+    return this.translateService.getTranslationSuggestion(text);
   }
 
   @Post()

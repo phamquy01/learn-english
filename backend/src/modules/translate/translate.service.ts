@@ -30,6 +30,21 @@ export class TranslateService {
     };
   }
 
+  async getTranslationSuggestion(text: string) {
+    const result = await this.translateRepository
+      .createQueryBuilder('translation')
+      .where('translation.fromText LIKE :text', { text: `${text}%` })
+      .orderBy('translation.timestamp', 'DESC')
+      .getMany();
+
+    const suggestions = result.map((suggestion) => suggestion.fromText);
+
+    return {
+      suggestions,
+      message: 'Suggestions text susccessfully',
+    };
+  }
+
   async deleteTranslation(userId: string, translationId: string) {
     const translation = await this.translateRepository.findOne({
       where: {
@@ -46,7 +61,6 @@ export class TranslateService {
 
     const result = await this.translateRepository.find({
       where: { user: { id: userId }, id: translationId },
-      order: { timestamp: 'DESC' },
     });
     return {
       data: {

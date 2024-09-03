@@ -8,17 +8,18 @@ import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
+import { useFormStatus } from 'react-dom';
 
 async function translate(prevState: State, formData: FormData) {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
 
   if (!accessToken) {
-    throw new Error('Unauthorized'); // Không có token, trả về lỗi
+    throw new Error('Unauthorized');
   }
 
   try {
-    jwt.verify(accessToken, process.env.JWT_SECRET!); // Kiểm tra tính hợp lệ của token
+    jwt.verify(accessToken, process.env.JWT_SECRET!);
   } catch (error) {
     redirect(`/logout?accessToken=${accessToken}`);
   }
@@ -42,6 +43,8 @@ async function translate(prevState: State, formData: FormData) {
   );
 
   const data = response.payload;
+
+  console.log('data', data);
 
   if (rawFromData.inputLanguage === 'auto') {
     rawFromData.inputLanguage = data[0].detectedLanguage.language;

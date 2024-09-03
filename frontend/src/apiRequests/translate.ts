@@ -11,6 +11,10 @@ const key = process.env.AZURE_TEXT_TRANSLATION_KEY;
 const endpoint = process.env.AZUE_TEXT_TRANSLATION;
 const location = process.env.AZUE_TEXT_LOCATION;
 
+interface TranslationSuggestionResType {
+  suggestions: string[];
+}
+
 const apiTranslateRequest = {
   translation: (accessToken: string, body: any) =>
     http.post<TranslationBodyType>('api/v1/translation', body, {
@@ -19,7 +23,7 @@ const apiTranslateRequest = {
       },
     }),
 
-  getTranslation: (accessToken: string) =>
+  getTranslation: (accessToken?: string) =>
     http.get<TranslationListResType>('api/v1/translation', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -28,6 +32,11 @@ const apiTranslateRequest = {
         tags: ['translationHistory'],
       },
     }),
+
+  getTranslationSuggesstion: (text: string) =>
+    http.get<TranslationSuggestionResType>(
+      `api/v1/translation/suggestion?text=${encodeURIComponent(text)}`
+    ),
 
   deleteTranslation: (
     accessToken: string,

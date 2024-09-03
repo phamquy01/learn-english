@@ -16,9 +16,10 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Volume2Icon } from 'lucide-react';
-import apiTranslateRequest from '@/apiRequests/translate';
+import { Volume2Icon, X, XIcon } from 'lucide-react';
 import RecordAudio from '@/components/RecordAudio';
+import apiTranslateRequest from '@/apiRequests/translate';
+import { log } from 'console';
 
 const initialState = {
   inputLanguage: 'auto',
@@ -38,6 +39,11 @@ export default function TranslateForm({
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
+  const [aiText, setAIText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const contentEditableRef = useRef<HTMLTextAreaElement>(null);
+  let enterPressed = false;
 
   const playAudio = async () => {
     const synth = window.speechSynthesis;
@@ -61,8 +67,6 @@ export default function TranslateForm({
 
     const data = await response.json();
 
-    console.log('data', data);
-
     if (data.text) {
       setInput(data.text);
     }
@@ -73,7 +77,7 @@ export default function TranslateForm({
 
     const delayDebounceFn = setTimeout(() => {
       sunbmitBtnRef.current?.click();
-    }, 500);
+    }, 100);
 
     return () => clearTimeout(delayDebounceFn);
   }, [input]);
@@ -83,6 +87,124 @@ export default function TranslateForm({
       setOutput(state.output);
     }
   }, [state]);
+
+  const isCursorAtEnd = () => {
+    if (contentEditableRef.current) {
+      const start = contentEditableRef.current.selectionStart;
+      const end = contentEditableRef.current.selectionEnd;
+      const length = contentEditableRef.current.value.length;
+      return start === end && end === length;
+    }
+    return false;
+  };
+
+  const fetchSuggestions = async (text: string) => {
+    if (text.trim().length) {
+      setLoading(true);
+      await apiTranslateRequest
+        .getTranslationSuggesstion(text)
+        .then((res) => {
+          setAIText(
+            res.payload.suggestions && res.payload.suggestions.length > 0
+              ? res.payload.suggestions[0].slice(text.length)
+              : ''
+          );
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching AI text:', error);
+          setLoading(false);
+        });
+    }
+  };
+
+  const handleInput = async (e: any) => {
+    let newText = e.target.value;
+
+    if (enterPressed && newText.endsWith('\n\n')) {
+      newText = newText.slice(0, -1);
+      enterPressed = false;
+    }
+
+    setInput(newText);
+    setAIText('');
+
+    if (isCursorAtEnd()) {
+      if (debounceTimeoutRef.current !== null) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      debounceTimeoutRef.current = setTimeout(() => {
+        fetchSuggestions(newText);
+      }, 1500);
+    }
+  };
+
+  const setCursorToEnd = (element: HTMLElement) => {
+    const range = document.createRange();
+    const selection = window.getSelection();
+    if (selection !== null) {
+      range.selectNodeContents(element as Node);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  };
+
+  const acceptSuggestion = () => {
+    const contentEditableElement = contentEditableRef.current;
+    if (contentEditableElement) {
+      setInput(input + aiText);
+      contentEditableElement.innerText = input + aiText;
+      setAIText('');
+      setCursorToEnd(contentEditableElement);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      acceptSuggestion();
+    }
+    if (e.key === 'Enter') {
+      // Set the flag to true when Enter is pressed
+      enterPressed = true;
+
+      // Allow the default Enter key behavior to occur
+      setTimeout(() => {
+        const contentEditableElement = contentEditableRef.current;
+        if (contentEditableElement) {
+          const childNodes = Array.from(contentEditableElement.childNodes);
+
+          // Find the last <br> element
+          for (let i = childNodes.length - 1; i >= 0; i--) {
+            if (childNodes[i].nodeName === 'BR') {
+              // Remove the last <br> element
+              contentEditableElement.removeChild(childNodes[i]);
+              break; // Exit the loop after removing the <br>
+            }
+          }
+
+          // Insert an empty text node with a zero-width space
+          const emptyTextNode = document.createTextNode('\u200B');
+          contentEditableElement.appendChild(emptyTextNode);
+
+          // Set cursor after the empty text node
+          setCursorToEnd(contentEditableElement);
+        }
+      }, 0);
+    }
+  };
+
+  const handleRemoveAllInput = () => {
+    const contentEditableElement = contentEditableRef.current;
+    if (contentEditableElement) {
+      setInput('');
+      setOutput('');
+      contentEditableElement.innerText = '';
+      setAIText('');
+      setCursorToEnd(contentEditableElement);
+    }
+  };
 
   return (
     <div>
@@ -125,13 +247,50 @@ export default function TranslateForm({
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Textarea
-              placeholder="type your message here"
-              className="min-h-32 text-xl"
-              name="input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
+
+            <div className="min-h-[164px] text-2xl flex flex-1 border-solid border-[1px] border-[#0000001f] rounded-md">
+              <div className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]">
+                <div className="relative w-full">
+                  <Textarea
+                    ref={contentEditableRef}
+                    className="absolute top-0 resize-none left-0 p-0 text-2xl font-light bg-transparent text-[#3c4043] border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0"
+                    name="input"
+                    value={input}
+                    onChange={handleInput}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <span
+                    id="suggesstion"
+                    className={`top-0 left-0 absolute z-10 align-center text-2xl font-light text-[#868686] transition-opacity duration-500 ${
+                      aiText ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
+                    {input + aiText}
+                    <span
+                      onClick={() => {
+                        acceptSuggestion();
+                      }}
+                      className="border p-1.5 py-0.5 text-[10px] ml-1 inline-block w-fit rounded-md border-gray-300 cursor-pointer"
+                    >
+                      Tab
+                    </span>
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  className={`rounded-full w-12 h-12 p-3 mx-1 my-1 absolute right-0 top-0 ${
+                    input ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  onClick={handleRemoveAllInput}
+                >
+                  <X
+                    size={24}
+                    strokeWidth={2}
+                    className="text-gray-500 font-medium"
+                  />
+                </Button>
+              </div>
+            </div>
           </div>
           <div className="flex-1 space-y-2">
             <div className="flex justify-between items-center">
@@ -171,14 +330,18 @@ export default function TranslateForm({
                 />
               </Button>
             </div>
-            <Textarea
-              readOnly
-              placeholder="type your message here"
-              className="min-h-32 text-xl"
-              name="output"
-              value={output}
-              onChange={(e) => setOutput(e.target.value)}
-            />
+            <div className="min-h-[164px] relative leading-[27px] text-sm flex flex-1 rounded-md">
+              <div className="flex pt-[12px] pl-[16px] w-full pr-[52px] relative">
+                <Textarea
+                  readOnly
+                  placeholder="Translate"
+                  className="pt-[12px] pl-[16px] absolute resize-none top-0 left-0 text-2xl bg-[#f5f5f5]  text-[#3c4043] outline-none border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 ring-0 h-full"
+                  name="output"
+                  value={output}
+                  onChange={(e) => setOutput(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
         </div>
         <div className="mt-5 flex justify-end">

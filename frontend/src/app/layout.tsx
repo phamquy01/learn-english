@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import Header from '@/components/Header';
 import { Toaster } from '@/components/ui/toaster';
 import AppProvider from '@/AppProvider';
 import { cookies } from 'next/headers';
+import Header from '@/components/header';
 
 const inter = Inter({ subsets: ['vietnamese'] });
 
@@ -35,7 +35,7 @@ export default function RootLayout({
         >
           <Header />
           <AppProvider initialAccessToken={accessToken?.value}>
-            <div className="max-w-6xl mx-auto"> {children}</div>
+            <div className="max-w-7xl mx-auto"> {children}</div>
           </AppProvider>
         </ThemeProvider>
       </body>
