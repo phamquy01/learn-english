@@ -1,4 +1,3 @@
-import { time } from 'console';
 import { z } from 'zod';
 
 export const TranslationBody = z
@@ -9,6 +8,7 @@ export const TranslationBody = z
     toText: z.string(),
     to: z.string(),
     timestamp: z.date(),
+    save: z.boolean(),
   })
   .strict();
 
@@ -36,6 +36,13 @@ export const TranslationListRes = z.object({
   }),
   message: z.string(),
 });
+
+export const SaveTranslationBody = z.object({
+  id: z.string(),
+  userId: z.string(),
+  saved: z.boolean(),
+});
+export type SaveTranslationBodyType = z.TypeOf<typeof SaveTranslationBody>;
 
 export type TranslationListResType = z.TypeOf<typeof TranslationListRes>;
 

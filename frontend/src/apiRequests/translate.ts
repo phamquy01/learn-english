@@ -1,6 +1,8 @@
 import translate from '@/actions/translate';
 import http from '@/lib/http';
+import { MessageResType } from '@/schemaValidations/common.schema';
 import {
+  SaveTranslationBodyType,
   TranslationBodyType,
   TranslationListResType,
   TranslationResType,
@@ -33,10 +35,8 @@ const apiTranslateRequest = {
       },
     }),
 
-  getTranslationSuggesstion: (text: string) =>
-    http.get<TranslationSuggestionResType>(
-      `api/v1/translation/suggestion?text=${encodeURIComponent(text)}`
-    ),
+  saveTranslation: (body: SaveTranslationBodyType) =>
+    http.post<MessageResType>('api/v1/translation/save-translation', body),
 
   deleteTranslation: (
     accessToken: string,

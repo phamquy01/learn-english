@@ -1,18 +1,16 @@
 import apiTranslateRequest from '@/apiRequests/translate';
 import DeleteTranslationButton from '@/components/DeleteTranslationButton';
 import TimeAgo from '@/components/TimeAgo';
+import { TranslationListResType } from '@/schemaValidations/translate.schema';
 import { cookies } from 'next/headers';
 import React from 'react';
 
-export default async function TranslateHistory() {
-  const cookieStore = cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
-  const response = await apiTranslateRequest.getTranslation(
-    accessToken as string
-  );
-
-  const dataTranslations = response.payload.data;
-
+export default async function TranslateHistory({
+  dataTranslations,
+}: {
+  dataTranslations: TranslationListResType;
+}) {
+  const data = dataTranslations.data;
   const getLanguage = (languageCode: string) => {
     const lang = new Intl.DisplayNames(['en'], { type: 'language' });
     return lang.of(languageCode);
@@ -21,12 +19,12 @@ export default async function TranslateHistory() {
   return (
     <div>
       <h1 className="text-3xl my-5">History</h1>
-      {dataTranslations.translations.length === 0 && (
+      {data.translations.length === 0 && (
         <p className="mb-5 text-gray-400">No translation history</p>
       )}
 
       <ul className="divide-y border rounded-md">
-        {dataTranslations.translations.map((dataTranslation) => (
+        {data.translations.map((dataTranslation) => (
           <li
             key={dataTranslation.id}
             className="flex justify-between items-center p-5 hover:bg-gray-50 relative"
@@ -51,7 +49,7 @@ export default async function TranslateHistory() {
             </p>
 
             <DeleteTranslationButton
-              userId={dataTranslations.userId}
+              userId={data.userId}
               translationId={dataTranslation.id}
             />
           </li>

@@ -5,8 +5,8 @@ import {
   RegisterBodyType,
   RegisterResType,
   VerifyCodeBodyType,
-  VerifyCodeResType,
 } from '@/schemaValidations/auth.schema';
+import { MessageResType } from '@/schemaValidations/common.schema';
 import { ResendEmailResType } from '@/schemaValidations/user.schema';
 
 const apiAuthRequest = {
@@ -26,7 +26,7 @@ const apiAuthRequest = {
 
   // checkCode
   checkCode: (body: VerifyCodeBodyType) =>
-    http.post<VerifyCodeResType>('/api/v1/auth/check-code', body),
+    http.post<MessageResType>('/api/v1/auth/check-code', body),
 
   // lout out from next server to server
   logoutFromNextServerToServer: (accessToken: string) =>

@@ -141,7 +141,6 @@ export class UserService {
       password: hashedPassword,
       isActive: false,
       codeId: uuidv4(),
-      // codeExpired: dayjs().add(30, 'seconds').toDate(),
       codeExpired: dayjs().add(5, 'minutes').toDate(),
     });
 

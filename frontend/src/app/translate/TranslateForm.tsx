@@ -13,13 +13,14 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Volume2Icon, X, XIcon } from 'lucide-react';
+import { Star, Volume2Icon, X, XIcon } from 'lucide-react';
 import RecordAudio from '@/components/RecordAudio';
 import apiTranslateRequest from '@/apiRequests/translate';
-import { log } from 'console';
+import { MdOutlineStarPurple500 } from 'react-icons/md';
+import { TranslationListResType } from '@/schemaValidations/translate.schema';
 
 const initialState = {
   inputLanguage: 'auto',
@@ -32,8 +33,10 @@ export type State = typeof initialState;
 
 export default function TranslateForm({
   languages,
+  dataTranslations,
 }: {
   languages: TranslationLanguages;
+  dataTranslations: TranslationListResType;
 }) {
   const [state, formAction] = useFormState(translate, initialState);
   const [input, setInput] = useState('');
@@ -41,10 +44,10 @@ export default function TranslateForm({
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
   const [aiText, setAIText] = useState('');
   const [loading, setLoading] = useState(false);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const contentEditableRef = useRef<HTMLTextAreaElement>(null);
+  const [startStatus, setStartStatus] = useState(false);
   let enterPressed = false;
-
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const playAudio = async () => {
     const synth = window.speechSynthesis;
     if (!output || !synth) return;
@@ -88,6 +91,15 @@ export default function TranslateForm({
     }
   }, [state]);
 
+  useEffect(() => {
+    if (dataTranslations.data.translations.length === 0) return;
+    const listFromTextDataTranslation = dataTranslations.data.translations.map(
+      (suggesstion) => suggesstion.fromText
+    );
+
+    setSuggestions(listFromTextDataTranslation);
+  }, [dataTranslations]);
+
   const isCursorAtEnd = () => {
     if (contentEditableRef.current) {
       const start = contentEditableRef.current.selectionStart;
@@ -101,20 +113,15 @@ export default function TranslateForm({
   const fetchSuggestions = async (text: string) => {
     if (text.trim().length) {
       setLoading(true);
-      await apiTranslateRequest
-        .getTranslationSuggesstion(text)
-        .then((res) => {
-          setAIText(
-            res.payload.suggestions && res.payload.suggestions.length > 0
-              ? res.payload.suggestions[0].slice(text.length)
-              : ''
-          );
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching AI text:', error);
-          setLoading(false);
-        });
+      const response = suggestions.filter((item) =>
+        item.toLowerCase().startsWith(text.toLowerCase())
+      );
+
+      if (response.length) {
+        setAIText(response[0].slice(text.length));
+      }
+
+      setLoading(false);
     }
   };
 
@@ -130,33 +137,29 @@ export default function TranslateForm({
     setAIText('');
 
     if (isCursorAtEnd()) {
-      if (debounceTimeoutRef.current !== null) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-      debounceTimeoutRef.current = setTimeout(() => {
-        fetchSuggestions(newText);
-      }, 1500);
+      fetchSuggestions(newText);
     }
   };
 
-  const setCursorToEnd = (element: HTMLElement) => {
-    const range = document.createRange();
-    const selection = window.getSelection();
-    if (selection !== null) {
-      range.selectNodeContents(element as Node);
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  };
+  // const setCursorToEnd = (element: HTMLElement) => {
+  //   const range = document.createRange();
+  //   const selection = window.getSelection();
+  //   if (selection !== null) {
+  //     range.selectNodeContents(element as Node);
+  //     range.collapse(false);
+  //     selection.removeAllRanges();
+  //     selection.addRange(range);
+  //   }
+  // };
 
   const acceptSuggestion = () => {
     const contentEditableElement = contentEditableRef.current;
+    console.log('contentEditableElement', contentEditableElement);
+
     if (contentEditableElement) {
       setInput(input + aiText);
-      contentEditableElement.innerText = input + aiText;
       setAIText('');
-      setCursorToEnd(contentEditableElement);
+      // setCursorToEnd(contentEditableElement);
     }
   };
 
@@ -166,32 +169,27 @@ export default function TranslateForm({
       acceptSuggestion();
     }
     if (e.key === 'Enter') {
-      // Set the flag to true when Enter is pressed
       enterPressed = true;
 
-      // Allow the default Enter key behavior to occur
-      setTimeout(() => {
-        const contentEditableElement = contentEditableRef.current;
-        if (contentEditableElement) {
-          const childNodes = Array.from(contentEditableElement.childNodes);
+      // setTimeout(() => {
+      //   const contentEditableElement = contentEditableRef.current;
 
-          // Find the last <br> element
-          for (let i = childNodes.length - 1; i >= 0; i--) {
-            if (childNodes[i].nodeName === 'BR') {
-              // Remove the last <br> element
-              contentEditableElement.removeChild(childNodes[i]);
-              break; // Exit the loop after removing the <br>
-            }
-          }
+      //   if (contentEditableElement) {
+      //     const childNodes = Array.from(contentEditableElement.childNodes);
 
-          // Insert an empty text node with a zero-width space
-          const emptyTextNode = document.createTextNode('\u200B');
-          contentEditableElement.appendChild(emptyTextNode);
+      //     for (let i = childNodes.length - 1; i >= 0; i--) {
+      //       if (childNodes[i].nodeName === 'BR') {
+      //         contentEditableElement.removeChild(childNodes[i]);
+      //         break;
+      //       }
+      //     }
 
-          // Set cursor after the empty text node
-          setCursorToEnd(contentEditableElement);
-        }
-      }, 0);
+      //     // const emptyTextNode = document.createTextNode('\u200B');
+      //     // contentEditableElement.appendChild(emptyTextNode);
+
+      //     setCursorToEnd(contentEditableElement);
+      //   }
+      // }, 0);
     }
   };
 
@@ -202,7 +200,26 @@ export default function TranslateForm({
       setOutput('');
       contentEditableElement.innerText = '';
       setAIText('');
-      setCursorToEnd(contentEditableElement);
+      // setCursorToEnd(contentEditableElement);
+    }
+  };
+
+  const handleSaveTranslation = async () => {
+    if (!output || loading) return;
+    const newStatus = !startStatus;
+    setStartStatus(newStatus);
+    setLoading(true);
+    try {
+      const response = await apiTranslateRequest.saveTranslation({
+        id: dataTranslations.data.translations[0].id,
+        userId: dataTranslations.data.userId,
+        saved: newStatus,
+      });
+      console.log(response);
+    } catch (error) {
+      console.error('API Error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -330,16 +347,32 @@ export default function TranslateForm({
                 />
               </Button>
             </div>
-            <div className="min-h-[164px] relative leading-[27px] text-sm flex flex-1 rounded-md">
-              <div className="flex pt-[12px] pl-[16px] w-full pr-[52px] relative">
-                <Textarea
-                  readOnly
-                  placeholder="Translate"
-                  className="pt-[12px] pl-[16px] absolute resize-none top-0 left-0 text-2xl bg-[#f5f5f5]  text-[#3c4043] outline-none border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 ring-0 h-full"
-                  name="output"
-                  value={output}
-                  onChange={(e) => setOutput(e.target.value)}
-                />
+            <div className="min-h-[164px] bg-[#f5f5f5] text-2xl flex flex-1  rounded-md">
+              <div className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]">
+                <div className="relative w-full">
+                  <Textarea
+                    readOnly
+                    placeholder="Translation"
+                    className="pt-[12px] pl-[16px] absolute resize-none top-0 left-0 text-2xl text-[#3c4043] outline-none border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 ring-0 h-full font-light"
+                    name="output"
+                    value={output}
+                    onChange={(e) => setOutput(e.target.value)}
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  className={`rounded-full w-12 h-12 p-3 mx-1 my-1 absolute right-0 top-0 hover:bg-[#ebebeb]  ${
+                    output ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  onClick={handleSaveTranslation}
+                >
+                  <MdOutlineStarPurple500
+                    size={24}
+                    className={`font-medium ${
+                      startStatus === true ? 'text-[#d56e0c]' : 'text-gray-500 '
+                    }`}
+                  />
+                </Button>
               </div>
             </div>
           </div>

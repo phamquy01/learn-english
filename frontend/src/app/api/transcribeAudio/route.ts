@@ -5,8 +5,6 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get('audio') as File;
 
-  console.log('file', file);
-
   if (
     process.env.AZUE_API_KEY === undefined ||
     process.env.AZUE_ENDPOINT === undefined ||
@@ -38,8 +36,6 @@ export async function POST(request: NextRequest) {
     process.env.AZUE_DEVELOPMENT_NAME,
     audioBuffer
   );
-
-  console.log('result', result);
 
   return NextResponse.json({ text: result.text });
 }

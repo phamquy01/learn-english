@@ -24,6 +24,11 @@ export class Translation {
   @Column()
   to: string;
 
+  @Column({
+    default: false,
+  })
+  save: boolean;
+
   @UpdateDateColumn()
   timestamp: Date;
 

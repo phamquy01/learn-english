@@ -6,10 +6,9 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   Request,
 } from '@nestjs/common';
-import { Public } from 'src/decorator/customize';
+import { SaveTranslationDTO } from 'src/modules/translate/dto/save-translation.dto';
 import { TranslateDTO } from 'src/modules/translate/dto/translate.dto';
 import { TranslateService } from 'src/modules/translate/translate.service';
 @Controller('translation')
@@ -21,15 +20,14 @@ export class TranslateController {
     return this.translateService.getTranslations(req.user);
   }
 
-  @Get('suggestion')
-  @Public()
-  getTextSuggesstion(@Query('text') text: string) {
-    return this.translateService.getTranslationSuggestion(text);
-  }
-
   @Post()
   create(@Request() req, @Body() body: TranslateDTO) {
     return this.translateService.createTranslation(req.user, body);
+  }
+
+  @Post('save-translation')
+  resendCode(@Body() saveTranslationDTO: SaveTranslationDTO) {
+    return this.translateService.saveTranslation(saveTranslationDTO);
   }
 
   @Patch()

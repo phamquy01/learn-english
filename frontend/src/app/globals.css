@@ -67,6 +67,9 @@
     @apply bg-background text-foreground;
   }
 
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
   
  
 }

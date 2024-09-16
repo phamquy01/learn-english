@@ -1,3 +1,4 @@
+import apiTranslateRequest from '@/apiRequests/translate';
 import TranslateForm from '@/app/translate/TranslateForm';
 import TranslateHistory from '@/app/translate/TranslateHistory';
 import { cookies } from 'next/headers';
@@ -14,6 +15,14 @@ export type TranslationLanguages = {
 };
 
 export default async function Translate() {
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
+  const responseHistoryTranslation = await apiTranslateRequest.getTranslation(
+    accessToken as string
+  );
+
+  const dataTranslations = responseHistoryTranslation.payload;
+
   const languagesEndpoint =
     'https://api.cognitive.microsofttranslator.com/languages?api-version=3.0';
   const response = await fetch(languagesEndpoint, {
@@ -25,8 +34,11 @@ export default async function Translate() {
   const languages = (await response.json()) as TranslationLanguages;
   return (
     <div className="px-10 xl:px-0 mb-20">
-      <TranslateForm languages={languages} />
-      <TranslateHistory />
+      <TranslateForm
+        languages={languages}
+        dataTranslations={dataTranslations}
+      />
+      <TranslateHistory dataTranslations={dataTranslations} />
     </div>
   );
 }

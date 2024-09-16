@@ -59,13 +59,6 @@ export const VerifyCodeBody = z.object({
 });
 export type VerifyCodeBodyType = z.TypeOf<typeof VerifyCodeBody>;
 
-export const VerifyCodeRes = z
-  .object({
-    message: z.string(),
-  })
-  .strict();
-export type VerifyCodeResType = z.TypeOf<typeof VerifyCodeRes>;
-
 export type LoginResType = z.TypeOf<typeof LoginRes>;
 export const SlideSessionBody = z.object({}).strict();
 

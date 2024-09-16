@@ -31,46 +31,46 @@ async function translate(prevState: State, formData: FormData) {
     outputLanguage: formData.get('outputLanguage') as string,
   };
 
-  const params = new URLSearchParams({
-    'api-version': '3.0',
-    from: rawFromData.inputLanguage === 'auto' ? '' : rawFromData.inputLanguage,
-    to: rawFromData.outputLanguage,
-  });
+  // const params = new URLSearchParams({
+  //   'api-version': '3.0',
+  //   from: rawFromData.inputLanguage === 'auto' ? '' : rawFromData.inputLanguage,
+  //   to: rawFromData.outputLanguage,
+  // });
 
-  const response = await apiTranslateRequest.translate(
-    params.toString(),
-    rawFromData
-  );
+  // const response = await apiTranslateRequest.translate(
+  //   params.toString(),
+  //   rawFromData
+  // );
 
-  const data = response.payload;
+  // const data = response.payload;
 
-  console.log('data', data);
+  // console.log('data', data);
 
-  if (rawFromData.inputLanguage === 'auto') {
-    rawFromData.inputLanguage = data[0].detectedLanguage.language;
-  }
+  // if (rawFromData.inputLanguage === 'auto') {
+  //   rawFromData.inputLanguage = data[0].detectedLanguage.language;
+  // }
 
-  try {
-    const translationData = {
-      to: rawFromData.outputLanguage,
-      from: rawFromData.inputLanguage,
-      fromText: rawFromData.input,
-      toText: data[0].translations[0].text,
-    };
+  // try {
+  //   const translationData = {
+  //     to: rawFromData.outputLanguage,
+  //     from: rawFromData.inputLanguage,
+  //     fromText: rawFromData.input,
+  //     toText: data[0].translations[0].text,
+  //   };
 
-    await apiTranslateRequest.translation(accessToken, translationData);
-  } catch (error) {
-    console.error(
-      'Error adding translation to user: ',
-      (error as Error).message
-    );
-  }
+  //   await apiTranslateRequest.translation(accessToken, translationData);
+  // } catch (error) {
+  //   console.error(
+  //     'Error adding translation to user: ',
+  //     (error as Error).message
+  //   );
+  // }
 
-  revalidateTag('translationHistory');
+  // revalidateTag('translationHistory');
 
   return {
     ...prevState,
-    output: data[0].translations[0].text,
+    // output: data[0].translations[0].text,
   };
 }
 

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SaveTranslationDTO } from 'src/modules/translate/dto/save-translation.dto';
 import { TranslateDTO } from 'src/modules/translate/dto/translate.dto';
 import { Translation } from 'src/modules/translate/entities/translate.entity';
 import { Repository } from 'typeorm';
@@ -30,18 +31,28 @@ export class TranslateService {
     };
   }
 
-  async getTranslationSuggestion(text: string) {
-    const result = await this.translateRepository
-      .createQueryBuilder('translation')
-      .where('translation.fromText LIKE :text', { text: `${text}%` })
-      .orderBy('translation.timestamp', 'DESC')
-      .getMany();
+  async saveTranslation(translateDTO: SaveTranslationDTO) {
+    const translation = await this.translateRepository.findOne({
+      where: {
+        id: translateDTO.id,
+        user: { id: translateDTO.userId },
+      },
+    });
 
-    const suggestions = result.map((suggestion) => suggestion.fromText);
+    if (!translation) {
+      throw new BadRequestException('Translation không tồn tại');
+    }
+
+    await this.translateRepository.update(
+      {
+        id: translateDTO.id,
+        user: { id: translateDTO.userId },
+      },
+      { save: translateDTO.saved },
+    );
 
     return {
-      suggestions,
-      message: 'Suggestions text susccessfully',
+      message: 'Translation lưu thành công',
     };
   }
 
