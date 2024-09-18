@@ -1,10 +1,15 @@
 import http from '@/lib/http';
-import { UserResType } from '@/schemaValidations/user.schema';
+
+const envDictionaryApiEndpoint =
+  process.env.NEXT_PUBLIC_DICTIONARY_API_ENDPOINT!;
 
 const apiCardRequests = {
   getDictionary: (param: string) =>
-    http.get(`api/v2/entries/en/${param}`, {
-      baseUrl: process.env.DICTIIONARY_API_ENDPOINT,
+    http.get<any>(`${param}`, {
+      baseUrl: envDictionaryApiEndpoint,
+      headers: {
+        'Content-type': 'application/json',
+      },
     }),
 };
 

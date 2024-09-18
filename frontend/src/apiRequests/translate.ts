@@ -13,10 +13,6 @@ const key = process.env.AZURE_TEXT_TRANSLATION_KEY;
 const endpoint = process.env.AZUE_TEXT_TRANSLATION;
 const location = process.env.AZUE_TEXT_LOCATION;
 
-interface TranslationSuggestionResType {
-  suggestions: string[];
-}
-
 const apiTranslateRequest = {
   translation: (accessToken: string, body: any) =>
     http.post<TranslationBodyType>('api/v1/translation', body, {

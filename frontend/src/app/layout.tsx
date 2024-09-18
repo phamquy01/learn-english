@@ -35,7 +35,7 @@ export default function RootLayout({
         >
           <Header />
           <AppProvider initialAccessToken={accessToken?.value}>
-            <div className="max-w-7xl mx-auto"> {children}</div>
+            <div className="-full lg:max-w-7xl mx-auto"> {children}</div>
           </AppProvider>
         </ThemeProvider>
       </body>

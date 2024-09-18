@@ -25,8 +25,8 @@ import { TranslationListResType } from '@/schemaValidations/translate.schema';
 const initialState = {
   inputLanguage: 'auto',
   outputLanguage: 'en',
-  input: '',
-  output: '',
+  input: 'My name is Pham Binh Quy',
+  output: 'Tôi tên là Phạm Bình Quý',
 };
 
 export type State = typeof initialState;
@@ -86,7 +86,8 @@ export default function TranslateForm({
   }, [input]);
 
   useEffect(() => {
-    if (state.output) {
+    if (state.output || state.input) {
+      setInput(state.input);
       setOutput(state.output);
     }
   }, [state]);
@@ -222,6 +223,9 @@ export default function TranslateForm({
       setLoading(false);
     }
   };
+
+  console.log('input', input);
+  console.log('output', output);
 
   return (
     <div>

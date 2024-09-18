@@ -10,6 +10,7 @@ import {
   TranslationListResType,
 } from '@/schemaValidations/translate.schema';
 import apiCardRequests from '@/apiRequests/card';
+import { set } from 'zod';
 
 export default function Card({
   dataTranslations,
@@ -29,6 +30,7 @@ export default function Card({
   >([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [answer, setAnswer] = useState('');
+  const [isDisabledInput, setIsDisabledInput] = useState<boolean>(false);
 
   const encodeToBase26 = (numbers: number[]): string => {
     const binaryString = numbers
@@ -77,6 +79,7 @@ export default function Card({
   }
 
   const handleFlip = (index: number, text: string) => {
+    setIsDisabledInput(false);
     setIndexCard(index);
     const inputValue = inputRef?.current;
     setAnswer(text);
@@ -97,11 +100,19 @@ export default function Card({
 
     setIsFlipped(updatedFlipped);
     updateUrl(encodeToBase26(newUpdateFlipped));
+    setIsDisabledInput(true);
   };
 
-  const fetchData = async (inpWord: string) => {
-    const getListDictionary = apiCardRequests.getDictionary(inpWord);
-  };
+  useEffect(() => {
+    const getData = async (inpWord: string) => {
+      try {
+        const result = await apiCardRequests.getDictionary(inpWord);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    getData('hello');
+  }, []);
 
   useEffect(() => {
     if (dataTranslations.data.translations.length === 0) return;
@@ -115,13 +126,13 @@ export default function Card({
   }, [dataTranslations]);
 
   return (
-    <div className="grid grid-cols-3 gap-4">
-      <div className="flex items-center justify-center col-span-2">
+    <div className="flex flex-col-reverse w-full px-8">
+      <div className="grid grid-cols-3 gap-4 lg:grid-cols-5">
         {saveTranslations.length > 0 ? (
           saveTranslations.map((saveTranslation, index) => (
             <motion.div
               key={saveTranslation.id}
-              className="w-64 h-96 [perspective:1000px] cursor-pointer"
+              className="w-32 h-32 lg:w-52 lg:h-52 mx-auto [perspective:1000px] cursor-pointer"
               onClick={() => handleFlip(index, saveTranslation.fromText)}
             >
               <motion.div
@@ -132,15 +143,15 @@ export default function Card({
                 }}
               >
                 {/* Front of the card */}
-                <div className="absolute w-full h-full backface-hidden [transform:rotateY(0deg)] bg-white rounded-lg shadow-md flex items-center justify-center p-4">
-                  <p className="text-center text-lg font-semibold">
+                <div className="absolute w-full h-full backface-hidden [transform:rotateY(0deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4">
+                  <p className="text-center text-xs lg:text-xl font-semibold">
                     {saveTranslation.toText}
                   </p>
                 </div>
 
                 {/* Back of the card */}
-                <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] bg-white rounded-lg shadow-md flex items-center justify-center p-4">
-                  <p className="text-center text-lg font-semibold">
+                <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4">
+                  <p className="text-center text-xs lg:text-xl font-semibold">
                     {saveTranslation.fromText}
                   </p>
                 </div>
@@ -157,6 +168,7 @@ export default function Card({
           ref={inputRef}
           indexCard={indexCard}
           setIsFlipped={onFlipSubmit}
+          isDisabledInput={isDisabledInput}
         />
       </div>
     </div>
