@@ -1,4 +1,4 @@
-import translate from '@/actions/translate';
+
 import http from '@/lib/http';
 import { MessageResType } from '@/schemaValidations/common.schema';
 import {
@@ -7,11 +7,10 @@ import {
   TranslationListResType,
   TranslationResType,
 } from '@/schemaValidations/translate.schema';
-import { v4 } from 'uuid';
 
-const key = process.env.AZURE_TEXT_TRANSLATION_KEY;
-const endpoint = process.env.AZUE_TEXT_TRANSLATION;
-const location = process.env.AZUE_TEXT_LOCATION;
+const endpoint = process.env.MYMEMORY_ENDPOINT;
+// const key = process.env.AZURE_TEXT_TRANSLATION_KEY;
+// const location = process.env.AZUE_TEXT_LOCATION;
 
 const apiTranslateRequest = {
   translation: (accessToken: string, body: any) =>
@@ -49,24 +48,33 @@ const apiTranslateRequest = {
     ),
 
   // translate
-  translate: (params: string, body: { input: string }) =>
-    http.post<TranslationResType>(
-      `/translate?${params}`,
-      [
-        {
-          Text: body.input,
-        },
-      ],
-      {
-        baseUrl: endpoint,
-        headers: {
-          'Ocp-Apim-Subscription-Key': key!,
-          'Ocp-Apim-Subscription-Region': location!,
-          'Content-Type': 'application/json',
-          'X-Client-Name': v4().toString(),
-        },
-      }
-    ),
+  // translate: (params: string, body: { input: string }) =>
+  //   http.post<TranslationResType>(
+  //     `/translate?${params}`,
+  //     [
+  //       {
+  //         Text: body.input,
+  //       },
+  //     ],
+  //     {
+  //       baseUrl: endpoint,
+  //       headers: {
+  //         'Ocp-Apim-Subscription-Key': key!,
+  //         'Ocp-Apim-Subscription-Region': location!,
+  //         'Content-Type': 'application/json',
+  //         'X-Client-Name': v4().toString(),
+  //       },
+  //     }
+  //   ),
+
+  // translate
+  translate: (params: string) =>
+    http.get<any>(`/get?${params}`, {
+      baseUrl: endpoint,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }),
 };
 
 export default apiTranslateRequest;

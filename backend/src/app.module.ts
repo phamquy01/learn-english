@@ -10,12 +10,14 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { WordModule } from 'src/modules/word/word.module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     TranslateModule,
+    WordModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

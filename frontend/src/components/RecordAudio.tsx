@@ -1,109 +1,69 @@
 'use client';
 import { Mic, MicIcon } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { record, set } from 'zod';
-
-export const mimeType = 'audio/webm';
 
 export default function RecordAudio({
   uploadAudio,
 }: {
-  uploadAudio: (audio: Blob) => void;
+  uploadAudio: (text: string) => void;
 }) {
   const { pending } = useFormStatus();
-  const [permission, setPermission] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [recordingStatus, setRecordingStatus] = useState('inactive');
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [recordingStatus, setRecordingStatus] = useState<string>('inactive');
 
-  const getMicroPhonePermission = async () => {
-    if ('MediaRecorder' in window) {
-      try {
-        const streamData = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: false,
-        });
-        setPermission(true);
-        setStream(streamData);
-      } catch (error: any) {
-        alert(error.message);
-      }
-    } else {
-      alert('MediaRecorder is not supported in your browser');
+  const handleVoice = (text: string) => {
+    const handledText = text.toLowerCase();
+    if (handledText) {
+      uploadAudio(handledText);
     }
   };
 
-  const startRecording = async () => {
-    if (stream === null || pending) return;
-    setRecordingStatus('recording');
+  const startRecording = (e: any) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.start();
+      setRecordingStatus('recording');
 
-    const media = new MediaRecorder(stream, { mimeType });
-    mediaRecorder.current = media;
-    mediaRecorder.current.start();
+      recognition.onend = () => {
+        recognition.stop();
+        setRecordingStatus('inactive');
+      };
 
-    let localChunks: Blob[] = [];
+      recognition.onError = (e: any) => {
+        console.error(e.error);
+      };
 
-    mediaRecorder.current.ondataavailable = (event) => {
-      if (typeof event.data === 'undefined') return;
-      if (event.data.size === 0) return;
-      localChunks.push(event.data);
-    };
-    setAudioChunks(localChunks);
+      recognition.onresult = (e: any) => {
+        console.log('result', e);
+        const text = e.results[0][0].transcript;
+
+        handleVoice(text);
+      };
+    }
   };
 
-  const stopRecording = async () => {
-    if (mediaRecorder.current === null || pending) return;
-
-    setRecordingStatus('inactive');
-    mediaRecorder.current.stop();
-
-    mediaRecorder.current.onstop = () => {
-      const audioBlob = new Blob(audioChunks, { type: mimeType });
-      uploadAudio(audioBlob);
-      setAudioChunks([]);
-    };
-  };
-
-  useEffect(() => {
-    getMicroPhonePermission();
-  }, []);
   return (
     <div
-      className={`flex items-center group text-blue-500 cursor-pointer border rounded-md w-fit px-3 py-2 mb-5 ${
-        recordingStatus === 'recording'
-          ? 'bg-red-500 text-white'
-          : 'hover:bg-[#E7F0FE]'
-      }`}
+      className={`flex items-center group text-blue-500 cursor-pointer border rounded-md w-fit px-3 py-2 mb-5 `}
     >
-      <MicIcon
-        strokeWidth={1.5}
-        fontSize={16}
-        className="group-hover:underline font-medium cursor-pointer"
-      />
-      {!permission && (
-        <button onClick={getMicroPhonePermission}>get Microphone</button>
-      )}
-      {pending && <p>Translating...</p>}
-
-      {permission && recordingStatus === 'inactive' && !pending && (
-        <button
-          onClick={startRecording}
-          className="text-sm font-medium group-hover:underline ml-2 mt-1"
+      <button onClick={(e) => startRecording(e)}>
+        <div
+          className={`${
+            recordingStatus === 'inactive' ? 'inline-block' : 'hidden'
+          }`}
         >
-          Speak
-        </button>
-      )}
-
-      {recordingStatus === 'recording' && (
-        <button
-          onClick={stopRecording}
-          className="text-sm font-medium group-hover:underline ml-2 mt-1"
-        >
-          Stop
-        </button>
-      )}
+          <MicIcon strokeWidth={3} fontSize={16} />
+        </div>
+        <span
+          className={`${
+            recordingStatus === 'recording' ? 'inline-block' : 'hidden'
+          } w-3 h-3 bg-[#e22d2d] rounded-full pulse`}
+        ></span>
+      </button>
     </div>
   );
 }

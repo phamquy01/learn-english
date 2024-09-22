@@ -24,9 +24,9 @@ import { TranslationListResType } from '@/schemaValidations/translate.schema';
 
 const initialState = {
   inputLanguage: 'auto',
-  outputLanguage: 'en',
-  input: 'My name is Pham Binh Quy',
-  output: 'Tôi tên là Phạm Bình Quý',
+  outputLanguage: 'vi',
+  input: '',
+  output: '',
 };
 
 export type State = typeof initialState;
@@ -39,8 +39,10 @@ export default function TranslateForm({
   dataTranslations: TranslationListResType;
 }) {
   const [state, formAction] = useFormState(translate, initialState);
+
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
+  const [outputLanguage, setOutputLanguage] = useState('vi');
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
   const [aiText, setAIText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -49,57 +51,20 @@ export default function TranslateForm({
   let enterPressed = false;
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const playAudio = async () => {
+    console.log(outputLanguage);
+
     const synth = window.speechSynthesis;
     if (!output || !synth) return;
     const wordsToSay = new SpeechSynthesisUtterance(output);
+    wordsToSay.lang = outputLanguage;
     synth.speak(wordsToSay);
   };
 
-  const uploadAudio = async (audio: Blob) => {
-    const mimeType = 'audio/webm';
-
-    const file = new File([audio], 'audio.webm', { type: mimeType });
-
-    const formData = new FormData();
-    formData.append('audio', file);
-
-    const response = await fetch('api/transcribeAudio', {
-      method: 'POST',
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (data.text) {
-      setInput(data.text);
+  const uploadAudio = async (text: string) => {
+    if (text) {
+      setInput(text);
     }
   };
-
-  useEffect(() => {
-    if (!input.trim()) return;
-
-    const delayDebounceFn = setTimeout(() => {
-      sunbmitBtnRef.current?.click();
-    }, 100);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [input]);
-
-  useEffect(() => {
-    if (state.output || state.input) {
-      setInput(state.input);
-      setOutput(state.output);
-    }
-  }, [state]);
-
-  useEffect(() => {
-    if (dataTranslations.data.translations.length === 0) return;
-    const listFromTextDataTranslation = dataTranslations.data.translations.map(
-      (suggesstion) => suggesstion.fromText
-    );
-
-    setSuggestions(listFromTextDataTranslation);
-  }, [dataTranslations]);
 
   const isCursorAtEnd = () => {
     if (contentEditableRef.current) {
@@ -142,25 +107,11 @@ export default function TranslateForm({
     }
   };
 
-  // const setCursorToEnd = (element: HTMLElement) => {
-  //   const range = document.createRange();
-  //   const selection = window.getSelection();
-  //   if (selection !== null) {
-  //     range.selectNodeContents(element as Node);
-  //     range.collapse(false);
-  //     selection.removeAllRanges();
-  //     selection.addRange(range);
-  //   }
-  // };
-
   const acceptSuggestion = () => {
     const contentEditableElement = contentEditableRef.current;
-    console.log('contentEditableElement', contentEditableElement);
-
     if (contentEditableElement) {
       setInput(input + aiText);
       setAIText('');
-      // setCursorToEnd(contentEditableElement);
     }
   };
 
@@ -199,9 +150,8 @@ export default function TranslateForm({
     if (contentEditableElement) {
       setInput('');
       setOutput('');
-      contentEditableElement.innerText = '';
       setAIText('');
-      // setCursorToEnd(contentEditableElement);
+      contentEditableElement.innerText = '';
     }
   };
 
@@ -224,8 +174,29 @@ export default function TranslateForm({
     }
   };
 
-  console.log('input', input);
-  console.log('output', output);
+  useEffect(() => {
+    if (!input) return;
+    const delayDebounceFn = setTimeout(() => {
+      sunbmitBtnRef.current?.click();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [input]);
+
+  useEffect(() => {
+    if (state.output) {
+      setOutput(state.output);
+    }
+  }, [state]);
+
+  useEffect(() => {
+    if (dataTranslations.data.translations.length === 0) return;
+    const listFromTextDataTranslation = dataTranslations.data.translations.map(
+      (suggesstion) => suggesstion.fromText
+    );
+
+    setSuggestions(listFromTextDataTranslation);
+  }, [dataTranslations]);
 
   return (
     <div>
@@ -245,9 +216,9 @@ export default function TranslateForm({
       </div>
 
       <form action={formAction}>
-        <div className="flex flex-col space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2">
+        <div className="flex flex-col space-y-2">
           <div className="flex-1 space-y-2">
-            <Select name="inputLanguage" defaultValue="auto">
+            <Select name="inputLanguage" defaultValue="en">
               <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                 <SelectValue placeholder="Select a language" />
               </SelectTrigger>
@@ -268,21 +239,21 @@ export default function TranslateForm({
                 </SelectGroup>
               </SelectContent>
             </Select>
-
-            <div className="min-h-[164px] text-2xl flex flex-1 border-solid border-[1px] border-[#0000001f] rounded-md">
+            <div className="min-h-[164px] text-2xl flex flex-1">
               <div className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]">
                 <div className="relative w-full">
                   <Textarea
                     ref={contentEditableRef}
-                    className="absolute top-0 resize-none left-0 p-0 text-2xl font-light bg-transparent text-[#3c4043] border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0"
+                    className="absolute top-0 resize-none left-0 p-0 text-5xl font-extralight bg-transparent text-[#3c4043] border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 "
                     name="input"
+                    placeholder="Typing here..."
                     value={input}
                     onChange={handleInput}
                     onKeyDown={handleKeyDown}
                   />
                   <span
                     id="suggesstion"
-                    className={`top-0 left-0 absolute z-10 align-center text-2xl font-light text-[#868686] transition-opacity duration-500 ${
+                    className={`top-0 left-0 absolute z-10 align-center text-5xl font-extralight text-[#868686] transition-opacity duration-500 ${
                       aiText ? 'opacity-100' : 'opacity-0'
                     }`}
                   >
@@ -313,9 +284,14 @@ export default function TranslateForm({
               </div>
             </div>
           </div>
+
           <div className="flex-1 space-y-2">
             <div className="flex justify-between items-center">
-              <Select name="outputLanguage" defaultValue="vi">
+              <Select
+                name="outputLanguage"
+                defaultValue="vi"
+                onValueChange={(value) => setOutputLanguage(value)}
+              >
                 <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                   <SelectValue placeholder="Select a language" />
                 </SelectTrigger>

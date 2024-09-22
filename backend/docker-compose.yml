@@ -10,5 +10,3 @@ services:
       MYSQL_USER: quypham
       MYSQL_PASSWORD: Abc123456
       MYSQL_DATABASE: backend-db
-    volumes:
-      - ./data/mysql:/var/lib/mysql

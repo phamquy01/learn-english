@@ -70,6 +70,21 @@
   .backface-hidden {
     backface-visibility: hidden;
   }
-  
+
+  @keyframes pulse {
+      0%{
+        box-shadow: 0 0 3px 0 rgba(173, 0, 0, .3);
+      }
+      65%{
+        box-shadow: 0 0 3px 5px rgba(173, 0, 0, .3);
+      }
+      100%{
+        box-shadow: 0 0 3px 5px rgba(173, 0, 0, 0);
+      }
+  }
+
+  .pulse {
+    animation: pulse 1.5s infinite linear;
+  }
  
 }

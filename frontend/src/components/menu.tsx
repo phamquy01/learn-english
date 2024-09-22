@@ -25,6 +25,10 @@ export default function Menu() {
       handleErrorApi({ error });
     }
   };
+
+  const handleNavigateCard = () => {
+    router.push('/cards');
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
@@ -41,8 +45,8 @@ export default function Menu() {
             Profile
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            Settings
+          <DropdownMenuItem onClick={handleNavigateCard}>
+            Cards
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>GitHub</DropdownMenuItem>
