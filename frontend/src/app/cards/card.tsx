@@ -1,82 +1,36 @@
 'use client';
 
-import InputCard from '@/app/cards/InputCard';
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import {
-  TranslationBodyType,
-  TranslationListResType,
-} from '@/schemaValidations/translate.schema';
 import apiCardRequests from '@/apiRequests/card';
+import { WordsListType } from '@/schemaValidations/card.schema';
+import InputCard from '@/app/cards/InputCard';
+import PlayAudio from '@/components/playAudio';
 import { set } from 'zod';
+import { decodeFromBase26, encodeToBase26 } from '@/lib/utils';
 
-export default function Card({
-  dataTranslations,
-}: {
-  dataTranslations: TranslationListResType;
-}) {
+export default function Card() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const flippedCardsParam = searchParams.get('fc');
-  const base26Chars = 'abcdefghijklmnopqrstuvwxyz';
+  const currentPageWord = searchParams.get('cp');
   const [isFlipped, setIsFlipped] = useState<number[]>(
     flippedCardsParam ? decodeFromBase26(flippedCardsParam) : []
   );
   const [indexCard, setIndexCard] = useState<number>();
-  const [saveTranslations, setSaveTranslations] = useState<
-    TranslationBodyType[]
-  >([]);
+  const [dataGetFromDBWord, setDataGetFromDBWord] = useState<WordsListType>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [answer, setAnswer] = useState('');
   const [isDisabledInput, setIsDisabledInput] = useState<boolean>(false);
 
-  const encodeToBase26 = (numbers: number[]): string => {
-    const binaryString = numbers
-      .map((num) => (1 << num).toString(2))
-      .reduce((acc, curr) =>
-        (parseInt(acc, 2) | parseInt(curr, 2)).toString(2)
-      );
+  console.log('flippedCardsParam', searchParams);
+  console.log('isFlipped', isFlipped);
+  console.log('indexCard', indexCard);
+  console.log('cp', currentPageWord);
 
-    let decimalValue = parseInt(binaryString, 2);
-    let base26String = '';
-
-    while (decimalValue > 0) {
-      base26String = base26Chars[decimalValue % 26] + base26String;
-      decimalValue = Math.floor(decimalValue / 26);
-    }
-
-    if (base26String.length < 2) {
-      base26String =
-        base26Chars[0].repeat(2 - base26String.length) + base26String;
-    } else if (base26String.length > 2) {
-      base26String = base26String.slice(-2);
-    }
-
-    return base26String;
-  };
-
-  function decodeFromBase26(encodedString: string): number[] {
-    let decimalValue = 0;
-
-    for (let i = 0; i < encodedString.length; i++) {
-      const char = encodedString[i];
-      const index = base26Chars.indexOf(char);
-      decimalValue = decimalValue * 26 + index;
-    }
-
-    const binaryString = decimalValue.toString(2);
-
-    const flippedCards: number[] = [];
-    for (let i = 0; i < binaryString.length; i++) {
-      if (binaryString[binaryString.length - 1 - i] === '1') {
-        flippedCards.push(i);
-      }
-    }
-
-    return flippedCards;
-  }
+ 
 
   const handleFlip = (index: number, text: string) => {
     setIsDisabledInput(false);
@@ -87,7 +41,7 @@ export default function Card({
   };
 
   const updateUrl = (flippedCards: string) => {
-    router.push(`/cards?fc=${flippedCards}`, {
+    router.push(`/cards?fc=${flippedCards}&cp=${currentPageWord ?? 1}`, {
       scroll: false,
     });
   };
@@ -103,57 +57,66 @@ export default function Card({
     setIsDisabledInput(true);
   };
 
-  useEffect(() => {
-    const getData = async (inpWord: string) => {
-      try {
-        const result = await apiCardRequests.getDictionary(inpWord);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    getData('hello');
-  }, []);
+  const handleResfresh = () => {
+    setIsFlipped([]);
+    setIndexCard(undefined);
+    const nextPageWord = currentPageWord ? +currentPageWord + 1 : 1;
+    router.push(`/cards?fc=&cp=${nextPageWord}`);
+  };
 
   useEffect(() => {
-    if (dataTranslations.data.translations.length === 0) return;
-    const listSaveDataTranslation = dataTranslations.data.translations.filter(
-      (saveDataTranslationFromHistory) =>
-        saveDataTranslationFromHistory.save === true
-    );
-    if (listSaveDataTranslation.length) {
-      setSaveTranslations(listSaveDataTranslation);
-    }
-  }, [dataTranslations]);
+    const getWords = async () => {
+      try {
+        const result = await apiCardRequests.getWords(
+          +(currentPageWord ?? 1),
+          20
+        );
+        setDataGetFromDBWord(result.payload.words);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return null;
+      }
+    };
+    getWords();
+  }, [currentPageWord]);
 
   return (
     <div className="flex flex-col-reverse w-full px-8">
       <div className="grid grid-cols-3 gap-4 lg:grid-cols-5">
-        {saveTranslations.length > 0 ? (
-          saveTranslations.map((saveTranslation, index) => (
+        {dataGetFromDBWord.length > 0 ? (
+          dataGetFromDBWord.map((vocabulary, index) => (
             <motion.div
-              key={saveTranslation.id}
+              key={vocabulary.id}
               className="w-32 h-32 lg:w-52 lg:h-52 mx-auto [perspective:1000px] cursor-pointer"
-              onClick={() => handleFlip(index, saveTranslation.fromText)}
             >
               <motion.div
-                key={saveTranslation.id}
+                key={vocabulary.id}
                 className="w-full h-full [transform-style:preserve-3d] transition-all duration-500"
                 animate={{
                   rotateY: isFlipped.includes(index) ? 180 : 0,
                 }}
               >
                 {/* Front of the card */}
-                <div className="absolute w-full h-full backface-hidden [transform:rotateY(0deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4">
-                  <p className="text-center text-xs lg:text-xl font-semibold">
-                    {saveTranslation.toText}
-                  </p>
-                </div>
+                <motion.div onClick={() => handleFlip(index, vocabulary.word)}>
+                  <div className="absolute w-full h-full backface-hidden [transform:rotateY(0deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4">
+                    <p className="text-center text-xs lg:text-xl font-semibold">
+                      {vocabulary.meaning}
+                    </p>
+                  </div>
+                </motion.div>
 
                 {/* Back of the card */}
-                <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4">
-                  <p className="text-center text-xs lg:text-xl font-semibold">
-                    {saveTranslation.fromText}
-                  </p>
+                <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4 flex-col">
+                  <h3 className="text-center text-xs lg:text-2xl font-semibold">
+                    {vocabulary.word}
+                  </h3>
+                  <div className="flex gap-2 text-gray-400 my-2 text-sm">
+                    <p>{vocabulary.type}</p>
+                    <p>/{vocabulary.pronounce}/</p>
+                  </div>
+                  <div className="absolute bottom-8">
+                    <PlayAudio language="en" text={vocabulary.word} />
+                  </div>
                 </div>
               </motion.div>
             </motion.div>
@@ -169,6 +132,7 @@ export default function Card({
           indexCard={indexCard}
           setIsFlipped={onFlipSubmit}
           isDisabledInput={isDisabledInput}
+          handleResfresh={handleResfresh}
         />
       </div>
     </div>

@@ -49,3 +49,49 @@ export const nomalizePath = (path: string) => {
 export const decodeJwt = <Payload = any>(token: string) => {
   return jwt.decode(token) as Payload;
 };
+
+const base26Chars = 'abcdefghijklmnopqrstuvwxyz';
+
+export const encodeToBase26 = (numbers: number[]): string => {
+  const binaryString = numbers
+    .map((num) => (1 << num).toString(2))
+    .reduce((acc, curr) => (parseInt(acc, 2) | parseInt(curr, 2)).toString(2));
+
+  let decimalValue = parseInt(binaryString, 2);
+  let base26String = '';
+
+  while (decimalValue > 0) {
+    base26String = base26Chars[decimalValue % 26] + base26String;
+    decimalValue = Math.floor(decimalValue / 26);
+  }
+
+  if (base26String.length < 2) {
+    base26String =
+      base26Chars[0].repeat(2 - base26String.length) + base26String;
+  } else if (base26String.length > 2) {
+    base26String = base26String.slice(-2);
+  }
+
+  return base26String;
+};
+
+export const decodeFromBase26 = (encodedString: string): number[] => {
+  let decimalValue = 0;
+
+  for (let i = 0; i < encodedString.length; i++) {
+    const char = encodedString[i];
+    const index = base26Chars.indexOf(char);
+    decimalValue = decimalValue * 26 + index;
+  }
+
+  const binaryString = decimalValue.toString(2);
+
+  const flippedCards: number[] = [];
+  for (let i = 0; i < binaryString.length; i++) {
+    if (binaryString[binaryString.length - 1 - i] === '1') {
+      flippedCards.push(i);
+    }
+  }
+
+  return flippedCards;
+};

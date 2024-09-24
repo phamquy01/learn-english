@@ -21,6 +21,7 @@ import RecordAudio from '@/components/RecordAudio';
 import apiTranslateRequest from '@/apiRequests/translate';
 import { MdOutlineStarPurple500 } from 'react-icons/md';
 import { TranslationListResType } from '@/schemaValidations/translate.schema';
+import PlayAudio from '@/components/playAudio';
 
 const initialState = {
   inputLanguage: 'auto',
@@ -50,15 +51,6 @@ export default function TranslateForm({
   const [startStatus, setStartStatus] = useState(false);
   let enterPressed = false;
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const playAudio = async () => {
-    console.log(outputLanguage);
-
-    const synth = window.speechSynthesis;
-    if (!output || !synth) return;
-    const wordsToSay = new SpeechSynthesisUtterance(output);
-    wordsToSay.lang = outputLanguage;
-    synth.speak(wordsToSay);
-  };
 
   const uploadAudio = async (text: string) => {
     if (text) {
@@ -314,18 +306,7 @@ export default function TranslateForm({
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={playAudio}
-                disabled={!output}
-                className="rounded-full"
-              >
-                <Volume2Icon
-                  size={18}
-                  className="text-gray-500 font-medium cursor-pointer disabled:cursor-not-allowed"
-                />
-              </Button>
+              <PlayAudio language={outputLanguage} text={output} />
             </div>
             <div className="min-h-[164px] bg-[#f5f5f5] text-2xl flex flex-1  rounded-md">
               <div className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]">

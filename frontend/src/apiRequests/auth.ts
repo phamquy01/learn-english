@@ -10,25 +10,20 @@ import { MessageResType } from '@/schemaValidations/common.schema';
 import { ResendEmailResType } from '@/schemaValidations/user.schema';
 
 const apiAuthRequest = {
-  // login
   login: (body: LoginBodyType) =>
-    http.post<LoginResType>('api/v1/auth/login', body),
+    http.post<LoginResType>('api/v1/auth/login', body, {}),
 
-  // register
   register: (body: RegisterBodyType) =>
-    http.post<RegisterResType>('api/v1/auth/register', body),
+    http.post<RegisterResType>('api/v1/auth/register', body, {}),
 
-  // register
   auth: (body: { accessToken: string }) =>
     http.post<{ accessToken: string }>('/api/auth', body, {
       baseUrl: '',
     }),
 
-  // checkCode
   checkCode: (body: VerifyCodeBodyType) =>
     http.post<MessageResType>('/api/v1/auth/check-code', body),
 
-  // lout out from next server to server
   logoutFromNextServerToServer: (accessToken: string) =>
     http.post('/api/v1/auth/logout', null, {
       headers: {
@@ -36,7 +31,6 @@ const apiAuthRequest = {
       },
     }),
 
-  // logout from next client to server
   logoutFromNextClientToServer: (
     force?: boolean | undefined,
     signal?: AbortSignal | undefined
@@ -52,7 +46,6 @@ const apiAuthRequest = {
       }
     ),
 
-  // resend email
   resendEmail: (body: { email: string }) =>
     http.post<ResendEmailResType>('/api/v1/auth/resend-code', body),
 };

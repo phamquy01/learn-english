@@ -1,6 +1,7 @@
 import envConfig from '@/config';
 import { nomalizePath } from '@/lib/utils';
 import { LoginResType } from '@/schemaValidations/auth.schema';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 type CustomOptions = RequestInit & {

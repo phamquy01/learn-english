@@ -17,7 +17,6 @@ export class WordController {
 
   //pagination
   @Get()
-  @Public()
   async getWords(
     @Query('current') current: number,
     @Query('pageSize') pageSize: number,
