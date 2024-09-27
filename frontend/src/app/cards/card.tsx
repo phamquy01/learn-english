@@ -1,140 +1,73 @@
 'use client';
+import apiTranslateRequest from '@/apiRequests/translate';
+import DeleteTranslationButton from '@/components/DeleteTranslationButton';
+import TimeAgo from '@/components/TimeAgo';
+import { TranslationListResType } from '@/schemaValidations/translate.schema';
+import React, { useEffect, useState } from 'react';
 
-import React, { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-import apiCardRequests from '@/apiRequests/card';
-import { WordsListType } from '@/schemaValidations/card.schema';
-import InputCard from '@/app/cards/InputCard';
-import PlayAudio from '@/components/playAudio';
-import { set } from 'zod';
-import { decodeFromBase26, encodeToBase26 } from '@/lib/utils';
+export default function TranslateHistory() {
+  const [dataHistory, setDataHistory] = useState<
+    TranslationListResType | undefined
+  >(undefined);
 
-export default function Card() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const flippedCardsParam = searchParams.get('fc');
-  const currentPageWord = searchParams.get('cp');
-  const [isFlipped, setIsFlipped] = useState<number[]>(
-    flippedCardsParam ? decodeFromBase26(flippedCardsParam) : []
-  );
-  const [indexCard, setIndexCard] = useState<number>();
-  const [dataGetFromDBWord, setDataGetFromDBWord] = useState<WordsListType>([]);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [answer, setAnswer] = useState('');
-  const [isDisabledInput, setIsDisabledInput] = useState<boolean>(false);
-
-  console.log('flippedCardsParam', searchParams);
-  console.log('isFlipped', isFlipped);
-  console.log('indexCard', indexCard);
-  console.log('cp', currentPageWord);
-
- 
-
-  const handleFlip = (index: number, text: string) => {
-    setIsDisabledInput(false);
-    setIndexCard(index);
-    const inputValue = inputRef?.current;
-    setAnswer(text);
-    inputValue?.focus();
-  };
-
-  const updateUrl = (flippedCards: string) => {
-    router.push(`/cards?fc=${flippedCards}&cp=${currentPageWord ?? 1}`, {
-      scroll: false,
-    });
-  };
-
-  const onFlipSubmit = (index: number) => {
-    const updatedFlipped = [...isFlipped, index];
-    const newUpdateFlipped = updatedFlipped.filter(
-      (item, idx) => updatedFlipped.indexOf(item) === idx
-    );
-
-    setIsFlipped(updatedFlipped);
-    updateUrl(encodeToBase26(newUpdateFlipped));
-    setIsDisabledInput(true);
-  };
-
-  const handleResfresh = () => {
-    setIsFlipped([]);
-    setIndexCard(undefined);
-    const nextPageWord = currentPageWord ? +currentPageWord + 1 : 1;
-    router.push(`/cards?fc=&cp=${nextPageWord}`);
+  const getLanguage = (languageCode: string) => {
+    const lang = new Intl.DisplayNames(['en'], { type: 'language' });
+    return lang.of(languageCode);
   };
 
   useEffect(() => {
-    const getWords = async () => {
+    const fetchTranslations = async () => {
       try {
-        const result = await apiCardRequests.getWords(
-          +(currentPageWord ?? 1),
-          20
-        );
-        setDataGetFromDBWord(result.payload.words);
+        const result = await apiTranslateRequest.getTranslation();
+        setDataHistory(result.payload); // Cập nhật dữ liệu sau khi fetch thành công
       } catch (error) {
-        console.error('Error fetching data:', error);
-        return null;
+        console.error('Error fetching translations:', error);
       }
     };
-    getWords();
-  }, [currentPageWord]);
+
+    fetchTranslations(); // Gọi API khi component mount
+  }, []); // Chạy một lần sau khi component mount
 
   return (
-    <div className="flex flex-col-reverse w-full px-8">
-      <div className="grid grid-cols-3 gap-4 lg:grid-cols-5">
-        {dataGetFromDBWord.length > 0 ? (
-          dataGetFromDBWord.map((vocabulary, index) => (
-            <motion.div
-              key={vocabulary.id}
-              className="w-32 h-32 lg:w-52 lg:h-52 mx-auto [perspective:1000px] cursor-pointer"
-            >
-              <motion.div
-                key={vocabulary.id}
-                className="w-full h-full [transform-style:preserve-3d] transition-all duration-500"
-                animate={{
-                  rotateY: isFlipped.includes(index) ? 180 : 0,
-                }}
-              >
-                {/* Front of the card */}
-                <motion.div onClick={() => handleFlip(index, vocabulary.word)}>
-                  <div className="absolute w-full h-full backface-hidden [transform:rotateY(0deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4">
-                    <p className="text-center text-xs lg:text-xl font-semibold">
-                      {vocabulary.meaning}
-                    </p>
-                  </div>
-                </motion.div>
+    <div>
+      <h1 className="text-3xl my-5">History</h1>
+      {dataHistory?.data.translations.length === 0 && (
+        <p className="mb-5 text-gray-400">No translation history</p>
+      )}
 
-                {/* Back of the card */}
-                <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4 flex-col">
-                  <h3 className="text-center text-xs lg:text-2xl font-semibold">
-                    {vocabulary.word}
-                  </h3>
-                  <div className="flex gap-2 text-gray-400 my-2 text-sm">
-                    <p>{vocabulary.type}</p>
-                    <p>/{vocabulary.pronounce}/</p>
-                  </div>
-                  <div className="absolute bottom-8">
-                    <PlayAudio language="en" text={vocabulary.word} />
-                  </div>
+      <ul className="divide-y border rounded-md">
+        {dataHistory &&
+          dataHistory.data.translations.map((dataTranslation) => (
+            <li
+              key={dataTranslation.id}
+              className="flex justify-between items-center p-5 hover:bg-gray-50 relative"
+            >
+              <div>
+                <p className="text-sm mb-5 text-gray-500">
+                  {getLanguage(dataTranslation.from)} {'->'}{' '}
+                  {getLanguage(dataTranslation.to)}
+                </p>
+                <div className="space-y-2 pr-5">
+                  <p>{dataTranslation.fromText}</p>
+                  <p className="text-gray-400">{dataTranslation.toText}</p>
                 </div>
-              </motion.div>
-            </motion.div>
-          ))
-        ) : (
-          <h1>Bạn chưa có từ mới nào</h1>
-        )}
-      </div>
-      <div>
-        <InputCard
-          answer={answer}
-          ref={inputRef}
-          indexCard={indexCard}
-          setIsFlipped={onFlipSubmit}
-          isDisabledInput={isDisabledInput}
-          handleResfresh={handleResfresh}
-        />
-      </div>
+              </div>
+              <p className="absolute top-2 right-2 text-gray-300 text-xs">
+                <TimeAgo
+                  date={new Date(
+                    new Date(dataTranslation.timestamp).getTime() +
+                      7 * 60 * 60 * 1000
+                  ).toISOString()}
+                />
+              </p>
+
+              <DeleteTranslationButton
+                userId={dataHistory.data.userId}
+                translationId={dataTranslation.id}
+              />
+            </li>
+          ))}
+      </ul>
     </div>
   );
 }

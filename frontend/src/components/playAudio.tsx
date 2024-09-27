@@ -1,8 +1,6 @@
-'use client';
 import { Button } from '@/components/ui/button';
 import { Volume2Icon } from 'lucide-react';
-import React, { useState } from 'react';
-import { set } from 'zod';
+import React from 'react';
 
 export default function PlayAudio({
   language,
@@ -24,8 +22,17 @@ export default function PlayAudio({
     synth.speak(wordsToSay);
   };
   return (
-    <Button variant="ghost" type="button" onClick={playAudio} disabled={!text}>
-      <Volume2Icon size={18} className="font-bold cursor-pointer" />
+    <Button
+      variant="ghost"
+      type="button"
+      onClick={playAudio}
+      disabled={!text}
+      className=""
+    >
+      <Volume2Icon
+        size={16}
+        className="font-bold cursor-pointer hover:opacity-50 text-black"
+      />
     </Button>
   );
 }

@@ -23,14 +23,12 @@ export default function Header() {
           />
         </Link>
       </div>
-      {accessToken?.value && accessToken?.value.length > 0 && (
+      {accessToken?.value ? (
         <div className="flex justify-center items-center">
           <ModeToggle />
           <Menu />
         </div>
-      )}
-
-      {!accessToken?.value && (
+      ) : (
         <div>
           <Button variant="ghost">
             <Link href="/login">Sign in</Link>

@@ -40,14 +40,12 @@ const InputCard = forwardRef<
     ref
   ) => {
     const [loading, setLoading] = useState(false);
-    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const handleRefresh = () => {
       setIsRefreshing(true);
       handleResfresh();
-      
-
+      form.reset({ answer, translation: '' });
       setTimeout(() => {
         setIsRefreshing(false);
       }, 2000);
@@ -120,7 +118,6 @@ const InputCard = forwardRef<
           values.translation
         );
 
-        setIsCorrect(false);
         toast.error('', {
           description: (
             <div className="text-sm text-gray-600 ml-4 font-bold">
@@ -134,14 +131,12 @@ const InputCard = forwardRef<
         setLoading(true);
         setIsFlipped(indexCard);
         setLoading(false);
-        setIsCorrect(true);
       }
     }
 
     useEffect(() => {
       if (answer) {
         form.reset({ answer, translation: '' });
-        setIsCorrect(false);
       }
     }, [answer, form]);
 

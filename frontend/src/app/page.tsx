@@ -1,6 +1,3 @@
-import { Button } from '@/components/ui/button';
-import { cookies } from 'next/headers';
-import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Home() {

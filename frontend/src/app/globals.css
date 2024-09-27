@@ -89,15 +89,15 @@
  
 
   .fade-out {
-    animation: fadeOut 3s ease-out; /* Thời gian của animation */
+    animation: fadeOut 3s ease-out; 
   }
   
   @keyframes fadeOut {
     0% {
-      opacity: 1; /* Bắt đầu với độ mờ hoàn toàn */
+      opacity: 1;
     }
     100% {
-      opacity: 0; /* Kết thúc với độ mờ hoàn toàn */
+      opacity: 0; 
     }
   }
 }

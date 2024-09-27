@@ -1,13 +1,18 @@
 'use client';
+import { Button } from '@/components/ui/button';
 import { Mic, MicIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 export default function RecordAudio({
   uploadAudio,
+  text,
 }: {
   uploadAudio: (text: string) => void;
+  text: string;
 }) {
+  console.log(text);
+
   const { pending } = useFormStatus();
   const [recordingStatus, setRecordingStatus] = useState<string>('inactive');
 
@@ -47,23 +52,29 @@ export default function RecordAudio({
   };
 
   return (
-    <div
-      className={`flex items-center group text-blue-500 cursor-pointer border rounded-md w-fit px-3 py-2 mb-5 `}
-    >
-      <button onClick={(e) => startRecording(e)}>
+    <>
+      <Button
+        variant="ghost"
+        onClick={(e) => startRecording(e)}
+        disabled={!!text}
+      >
         <div
           className={`${
             recordingStatus === 'inactive' ? 'inline-block' : 'hidden'
           }`}
         >
-          <MicIcon strokeWidth={3} fontSize={16} />
+          <MicIcon
+            strokeWidth={2}
+            size={16}
+            className="font-bold cursor-pointer hover:opacity-50 text-black"
+          />
         </div>
         <span
           className={`${
             recordingStatus === 'recording' ? 'inline-block' : 'hidden'
           } w-3 h-3 bg-[#e22d2d] rounded-full pulse`}
         ></span>
-      </button>
-    </div>
+      </Button>
+    </>
   );
 }

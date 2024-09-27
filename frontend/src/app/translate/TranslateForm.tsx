@@ -1,6 +1,5 @@
 'use client';
 import translate from '@/actions/translate';
-import ButtonSubmit from '@/components/ButtonSubmit';
 import { TranslationLanguages } from '@/app/translate/page';
 import {
   Select,
@@ -11,17 +10,21 @@ import {
   SelectValue,
   SelectLabel,
 } from '@/components/ui/select';
+
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { use, useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Star, Volume2Icon, X, XIcon } from 'lucide-react';
+import { ArrowRightLeft, Star, Volume2Icon, X, XIcon } from 'lucide-react';
 import RecordAudio from '@/components/RecordAudio';
 import apiTranslateRequest from '@/apiRequests/translate';
 import { MdOutlineStarPurple500 } from 'react-icons/md';
 import { TranslationListResType } from '@/schemaValidations/translate.schema';
 import PlayAudio from '@/components/playAudio';
+import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import TranslateHistory from '@/app/translate/TranslateHistory';
 
 const initialState = {
   inputLanguage: 'auto',
@@ -40,17 +43,19 @@ export default function TranslateForm({
   dataTranslations: TranslationListResType;
 }) {
   const [state, formAction] = useFormState(translate, initialState);
-
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [outputLanguage, setOutputLanguage] = useState('vi');
-  const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
+  const [inputLanguage, setInputLanguage] = useState('en');
   const [aiText, setAIText] = useState('');
   const [loading, setLoading] = useState(false);
-  const contentEditableRef = useRef<HTMLTextAreaElement>(null);
-  const [startStatus, setStartStatus] = useState(false);
-  let enterPressed = false;
+  const [starStatus, setStarStatus] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [autoResize, setAutoResize] = useState<number | undefined>(undefined);
+
+  const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
+  const contentEditableRef = useRef<HTMLTextAreaElement>(null);
+  let enterPressed = false;
 
   const uploadAudio = async (text: string) => {
     if (text) {
@@ -107,33 +112,28 @@ export default function TranslateForm({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const element = contentEditableRef.current;
+    console.log(element?.scrollHeight);
+
+    if (element) {
+      console.log(element.scrollHeight);
+      element.style.height = 'auto';
+      element.style.height = `${element.scrollHeight + 64}px`;
+      element.scrollTop = element.scrollHeight;
+      setAutoResize(element.scrollHeight);
+    }
+
+    if (e.key === 'Backspace') {
+      setAIText('');
+    }
+
     if (e.key === 'Tab') {
       e.preventDefault();
       acceptSuggestion();
     }
     if (e.key === 'Enter') {
       enterPressed = true;
-
-      // setTimeout(() => {
-      //   const contentEditableElement = contentEditableRef.current;
-
-      //   if (contentEditableElement) {
-      //     const childNodes = Array.from(contentEditableElement.childNodes);
-
-      //     for (let i = childNodes.length - 1; i >= 0; i--) {
-      //       if (childNodes[i].nodeName === 'BR') {
-      //         contentEditableElement.removeChild(childNodes[i]);
-      //         break;
-      //       }
-      //     }
-
-      //     // const emptyTextNode = document.createTextNode('\u200B');
-      //     // contentEditableElement.appendChild(emptyTextNode);
-
-      //     setCursorToEnd(contentEditableElement);
-      //   }
-      // }, 0);
     }
   };
 
@@ -149,8 +149,8 @@ export default function TranslateForm({
 
   const handleSaveTranslation = async () => {
     if (!output || loading) return;
-    const newStatus = !startStatus;
-    setStartStatus(newStatus);
+    const newStatus = !starStatus;
+    setStarStatus(newStatus);
     setLoading(true);
     try {
       const response = await apiTranslateRequest.saveTranslation({
@@ -158,12 +158,29 @@ export default function TranslateForm({
         userId: dataTranslations.data.userId,
         saved: newStatus,
       });
-      console.log(response);
     } catch (error) {
       console.error('API Error:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSetInputLanguage = (value: string) => {
+    setInputLanguage(value);
+  };
+  const handleSetOutputLanguage = (value: string) => {
+    setOutputLanguage(value);
+  };
+
+  console.log('dataTranslations', dataTranslations);
+
+  const handleExChangeLanguage = () => {
+    const temp = inputLanguage;
+    const temp1 = input;
+    setInput(output);
+    setOutput(temp1);
+    handleSetInputLanguage(outputLanguage);
+    handleSetOutputLanguage(temp);
   };
 
   useEffect(() => {
@@ -173,7 +190,7 @@ export default function TranslateForm({
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [input]);
+  }, [input, inputLanguage, outputLanguage]);
 
   useEffect(() => {
     if (state.output) {
@@ -204,13 +221,16 @@ export default function TranslateForm({
             Text
           </p>
         </div>
-        <RecordAudio uploadAudio={uploadAudio} />
       </div>
 
       <form action={formAction}>
-        <div className="flex flex-col space-y-2">
-          <div className="flex-1 space-y-2">
-            <Select name="inputLanguage" defaultValue="en">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between whitespace-nowrap flex-1 space-y-2 ">
+            <Select
+              name="inputLanguage"
+              defaultValue="en"
+              onValueChange={(value) => handleSetOutputLanguage(value)}
+            >
               <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                 <SelectValue placeholder="Select a language" />
               </SelectTrigger>
@@ -231,12 +251,52 @@ export default function TranslateForm({
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <div className="min-h-[164px] text-2xl flex flex-1">
-              <div className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]">
+
+            <Button
+              variant="ghost"
+              className="w-fit rounded-full bg-transparent"
+              onClick={handleExChangeLanguage}
+            >
+              <ArrowRightLeft size={16} strokeWidth={3} color="black" />
+            </Button>
+
+            <Select
+              name="outputLanguage"
+              defaultValue="vi"
+              onValueChange={(value) => handleSetOutputLanguage(value)}
+            >
+              <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Want us to figure it out?</SelectLabel>
+                  <SelectItem key="auto" value="auto">
+                    Auto-Detection
+                  </SelectItem>
+                </SelectGroup>
+                <SelectGroup>
+                  <SelectLabel>Languages</SelectLabel>
+                  {Object.entries(languages.translation).map(([key, value]) => (
+                    <SelectItem key={key} value={key}>
+                      {value.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="min-h-[164px] bg-[#f5f5f5] text-2xl flex flex-col items-start flex-1 rounded-md">
+              <div
+                className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]"
+                style={{ height: autoResize ? autoResize : '100%' }}
+              >
                 <div className="relative w-full">
                   <Textarea
                     ref={contentEditableRef}
-                    className="absolute top-0 resize-none left-0 p-0 text-5xl font-extralight bg-transparent text-[#3c4043] border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 "
+                    className="absolute top-0 resize-none left-0 p-0 text-2xl font-normal bg-transparent text-[#3c4043] border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 overflow-hidden text-wrap"
                     name="input"
                     placeholder="Typing here..."
                     value={input}
@@ -245,7 +305,7 @@ export default function TranslateForm({
                   />
                   <span
                     id="suggesstion"
-                    className={`top-0 left-0 absolute z-10 align-center text-5xl font-extralight text-[#868686] transition-opacity duration-500 ${
+                    className={`top-0 left-0 absolute z-10 align-center text-2xl font-normal text-[#868686] transition-opacity duration-500 text-wrap w-full truncate ${
                       aiText ? 'opacity-100' : 'opacity-0'
                     }`}
                   >
@@ -262,7 +322,7 @@ export default function TranslateForm({
                 </div>
                 <Button
                   variant="ghost"
-                  className={`rounded-full w-12 h-12 p-3 mx-1 my-1 absolute right-0 top-0 ${
+                  className={`rounded-full  w-12 h-12 p-3 mx-1 my-1 absolute right-0 top-0 ${
                     input ? 'opacity-100' : 'opacity-0'
                   }`}
                   onClick={handleRemoveAllInput}
@@ -274,47 +334,22 @@ export default function TranslateForm({
                   />
                 </Button>
               </div>
+              <div className="flex">
+                <RecordAudio uploadAudio={uploadAudio} text={input} />
+                <PlayAudio language={inputLanguage} text={input} />
+              </div>
             </div>
-          </div>
 
-          <div className="flex-1 space-y-2">
-            <div className="flex justify-between items-center">
-              <Select
-                name="outputLanguage"
-                defaultValue="vi"
-                onValueChange={(value) => setOutputLanguage(value)}
+            <div className="min-h-[164px] bg-[#f5f5f5] text-2xl flex flex-col items-start flex-1 rounded-md">
+              <div
+                className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]"
+                style={{ height: autoResize ? autoResize : '100%' }}
               >
-                <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
-                  <SelectValue placeholder="Select a language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Want us to figure it out?</SelectLabel>
-                    <SelectItem key="auto" value="auto">
-                      Auto-Detection
-                    </SelectItem>
-                  </SelectGroup>
-                  <SelectGroup>
-                    <SelectLabel>Languages</SelectLabel>
-                    {Object.entries(languages.translation).map(
-                      ([key, value]) => (
-                        <SelectItem key={key} value={key}>
-                          {value.name}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <PlayAudio language={outputLanguage} text={output} />
-            </div>
-            <div className="min-h-[164px] bg-[#f5f5f5] text-2xl flex flex-1  rounded-md">
-              <div className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]">
                 <div className="relative w-full">
                   <Textarea
                     readOnly
                     placeholder="Translation"
-                    className="pt-[12px] pl-[16px] absolute resize-none top-0 left-0 text-2xl text-[#3c4043] outline-none border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 ring-0 h-full font-light"
+                    className="absolute resize-none top-0 left-0 p-0 text-2xl text-[#3c4043] outline-none border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 ring-0 h-full font-light"
                     name="output"
                     value={output}
                     onChange={(e) => setOutput(e.target.value)}
@@ -330,21 +365,49 @@ export default function TranslateForm({
                   <MdOutlineStarPurple500
                     size={24}
                     className={`font-medium ${
-                      startStatus === true ? 'text-[#d56e0c]' : 'text-gray-500 '
+                      starStatus === true ? 'text-[#d56e0c]' : 'text-gray-500 '
                     }`}
                   />
                 </Button>
               </div>
+              <PlayAudio language={outputLanguage} text={output} />
             </div>
           </div>
         </div>
         <div className="mt-5 flex justify-end">
-          <ButtonSubmit disable={!input} />
           <button type="submit" ref={sunbmitBtnRef} hidden>
             Translate
           </button>
         </div>
       </form>
+
+      <div className="flex items-center justify-between mt-5">
+        <div className="flex items-center">
+          <h2 className="text-xl font-bold text-[#3c4043]">History</h2>
+          <span className="text-[#868686] text-sm ml-2">All days</span>
+        </div>
+        <Button variant="ghost" className="text-[#3c4043]">
+          View all
+        </Button>
+      </div>
+
+      {/* Saved use sheet shadcn/ui*/}
+      <div className="flex items-center justify-between mt-5">
+        <div className="flex items-center">
+          <h2 className="text-xl font-bold text-[#3c4043]">Saved</h2>
+          <span className="text-[#868686] text-sm ml-2">All days</span>
+        </div>
+        <TranslateHistory dataTranslations={dataTranslations} />
+      </div>
+
+      <div className="flex items-center justify-between mt-5">
+        <div className="flex items-center">
+          <h2 className="text-xl font-bold text-[#3c4043]">Card</h2>
+        </div>
+        <Button variant="ghost" className="text-[#3c4043]">
+          <Link href="/cards">Go {'->'}</Link>
+        </Button>
+      </div>
     </div>
   );
 }
