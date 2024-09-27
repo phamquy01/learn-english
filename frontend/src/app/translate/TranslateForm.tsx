@@ -25,6 +25,7 @@ import PlayAudio from '@/components/playAudio';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import TranslateHistory from '@/app/translate/TranslateHistory';
+import { set } from 'zod';
 
 const initialState = {
   inputLanguage: 'auto',
@@ -52,6 +53,8 @@ export default function TranslateForm({
   const [starStatus, setStarStatus] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [autoResize, setAutoResize] = useState<number | undefined>(undefined);
+  const [savedTranslations, setSavedTranslations] =
+    useState<TranslationListResType>();
 
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
   const contentEditableRef = useRef<HTMLTextAreaElement>(null);
@@ -165,22 +168,20 @@ export default function TranslateForm({
     }
   };
 
-  const handleSetInputLanguage = (value: string) => {
+  const handleSetIntputLanguage = (value: string) => {
     setInputLanguage(value);
   };
   const handleSetOutputLanguage = (value: string) => {
     setOutputLanguage(value);
   };
 
-  console.log('dataTranslations', dataTranslations);
-
   const handleExChangeLanguage = () => {
-    const temp = inputLanguage;
-    const temp1 = input;
+    const temp = input;
     setInput(output);
-    setOutput(temp1);
-    handleSetInputLanguage(outputLanguage);
-    handleSetOutputLanguage(temp);
+    setOutput(temp);
+    const temp1 = inputLanguage;
+    setInputLanguage(outputLanguage);
+    setOutputLanguage(temp1);
   };
 
   useEffect(() => {
@@ -198,12 +199,26 @@ export default function TranslateForm({
     }
   }, [state]);
 
+  console.log(savedTranslations);
+
   useEffect(() => {
     if (dataTranslations.data.translations.length === 0) return;
     const listFromTextDataTranslation = dataTranslations.data.translations.map(
       (suggesstion) => suggesstion.fromText
     );
 
+    const savedTranslations = dataTranslations.data.translations.filter(
+      (savedTranslation) => savedTranslation.save === true
+    );
+
+    const dataSavedTranslations = {
+      message: 'Saved translations',
+      data: {
+        userId: dataTranslations.data.userId,
+        translations: savedTranslations,
+      },
+    };
+    setSavedTranslations(dataSavedTranslations);
     setSuggestions(listFromTextDataTranslation);
   }, [dataTranslations]);
 
@@ -228,8 +243,8 @@ export default function TranslateForm({
           <div className="flex items-center justify-between whitespace-nowrap flex-1 space-y-2 ">
             <Select
               name="inputLanguage"
-              defaultValue="en"
-              onValueChange={(value) => handleSetOutputLanguage(value)}
+              defaultValue={inputLanguage}
+              onValueChange={handleSetIntputLanguage}
             >
               <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                 <SelectValue placeholder="Select a language" />
@@ -262,8 +277,8 @@ export default function TranslateForm({
 
             <Select
               name="outputLanguage"
-              defaultValue="vi"
-              onValueChange={(value) => handleSetOutputLanguage(value)}
+              defaultValue={outputLanguage}
+              onValueChange={handleSetOutputLanguage}
             >
               <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                 <SelectValue placeholder="Select a language" />
@@ -386,9 +401,10 @@ export default function TranslateForm({
           <h2 className="text-xl font-bold text-[#3c4043]">History</h2>
           <span className="text-[#868686] text-sm ml-2">All days</span>
         </div>
-        <Button variant="ghost" className="text-[#3c4043]">
-          View all
-        </Button>
+        <TranslateHistory
+          title="Translation History"
+          dataTranslations={dataTranslations}
+        />
       </div>
 
       {/* Saved use sheet shadcn/ui*/}
@@ -397,7 +413,12 @@ export default function TranslateForm({
           <h2 className="text-xl font-bold text-[#3c4043]">Saved</h2>
           <span className="text-[#868686] text-sm ml-2">All days</span>
         </div>
-        <TranslateHistory dataTranslations={dataTranslations} />
+        {savedTranslations && (
+          <TranslateHistory
+            title="Translation Saved"
+            dataTranslations={savedTranslations}
+          />
+        )}
       </div>
 
       <div className="flex items-center justify-between mt-5">

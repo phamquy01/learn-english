@@ -38,7 +38,6 @@ export default async function Translate() {
         languages={languages}
         dataTranslations={dataTranslations}
       />
-      <TranslateHistory dataTranslations={dataTranslations} />
     </div>
   );
 }
