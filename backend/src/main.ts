@@ -11,7 +11,8 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.setGlobalPrefix('api/v1', { exclude: [''] });
-  const PORT = 3001;
+
+  const PORT = process.env.PORT || 3001;
   await app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });

@@ -98,6 +98,7 @@ const InputCard = forwardRef<
         return Object.entries(char).map(([key, value]) => {
           return (
             <span
+              key={key}
               className={`${value === 1 ? 'text-[#ca262d] underline' : ''}`}
             >
               {key}
