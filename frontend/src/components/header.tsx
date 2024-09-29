@@ -24,10 +24,7 @@ export default function Header() {
         </Link>
       </div>
       {accessToken?.value ? (
-        <div className="flex justify-center items-center">
-          <ModeToggle />
-          <Menu />
-        </div>
+        <Menu />
       ) : (
         <div>
           <Button variant="ghost">
@@ -38,3 +35,6 @@ export default function Header() {
     </header>
   );
 }
+
+
+

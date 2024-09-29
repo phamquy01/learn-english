@@ -9,7 +9,17 @@ import { WordsListType } from '@/schemaValidations/card.schema';
 import InputCard from '@/app/cards/InputCard';
 import PlayAudio from '@/components/playAudio';
 import { decodeFromBase26, encodeToBase26 } from '@/lib/utils';
-import { useFormStatus } from 'react-dom';
+import {
+  Card as UICard,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import Image from 'next/image';
+import { text } from 'stream/consumers';
+import { LucideChartNoAxesColumnIncreasing } from 'lucide-react';
 
 export default function Card() {
   const router = useRouter();
@@ -25,11 +35,7 @@ export default function Card() {
   const [answer, setAnswer] = useState('');
   const [isDisabledInput, setIsDisabledInput] = useState<boolean>(false);
 
-  const { pending } = useFormStatus();
-
-  console.log('pending', pending);
-
-  console.log('dataGetFromDBWord', dataGetFromDBWord);
+  // const [iamgeToText, setImageTotext] = useState<string[]>([]);
 
   const handleFlip = (index: number, text: string) => {
     setIsDisabledInput(false);
@@ -72,9 +78,26 @@ export default function Card() {
           +(currentPageWord ?? 1),
           20
         );
-        console.log('result', result);
-
         setDataGetFromDBWord(result.payload.words);
+
+        // const getImageForWord = async () => {
+        //   result.payload.words.map(async (word) => {
+        //     const params = new URLSearchParams({
+        //       page: '1',
+        //       per_page: '20',
+        //       query: word.word,
+        //     });
+
+        //     const textToiImage = await apiCardRequests.getImageCard(
+        //       params.toString()
+        //     );
+        //     console.log(textToiImage.payload.results);
+
+        //     setImageTotext(textToiImage.payload.results);
+        //   });
+        // };
+
+        // getImageForWord();
       } catch (error) {
         console.error('Error fetching data:', error);
         return null;
@@ -90,7 +113,7 @@ export default function Card() {
           dataGetFromDBWord.map((vocabulary, index) => (
             <motion.div
               key={vocabulary.id}
-              className="w-32 h-32 lg:w-52 lg:h-52 mx-auto [perspective:1000px] cursor-pointer"
+              className="relative w-52 h-72 [perspective:1000px]"
             >
               <motion.div
                 key={vocabulary.id}
@@ -99,21 +122,30 @@ export default function Card() {
                   rotateY: isFlipped.includes(index) ? 180 : 0,
                 }}
               >
-                {/* Front of the card */}
                 <motion.div onClick={() => handleFlip(index, vocabulary.word)}>
-                  <div className="absolute w-full h-full backface-hidden [transform:rotateY(0deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4">
-                    <p className="text-center text-xs lg:text-xl font-semibold">
-                      {vocabulary.meaning}
-                    </p>
-                  </div>
+                  <UICard className="absolute w-full h-full [backface-visibility:hidden]">
+                    <CardContent className="flex items-center justify-center h-full ">
+                      {/* <Image
+                        src={
+                          iamgeToText[index]?.urls?.thumb ?? '/images/404.jpg'
+                        }
+                        alt="Card front"
+                        layout="fill" // Dùng layout="fill" để tự động điều chỉnh kích thước
+                        objectFit="cover" // Đảm bảo ảnh phù hợp với container
+                        className="rounded-lg blur-md opacity-50"
+                      /> */}
+                      <div className="absolute  text-center text-xs lg:text-2xl font-bold p-4">
+                        {vocabulary.meaning}
+                      </div>
+                    </CardContent>
+                  </UICard>
                 </motion.div>
 
-                {/* Back of the card */}
                 <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] bg-gray-100 rounded-lg shadow-md flex items-center justify-center p-4 flex-col">
                   <h3 className="text-center text-xs lg:text-2xl font-semibold">
                     {vocabulary.word}
                   </h3>
-                  <div className="flex gap-2 text-gray-400 my-2 text-sm">
+                  <div className="flex flex-col items-center gap-2 text-gray-400 my-2 text-sm">
                     <p>{vocabulary.type}</p>
                     <p>/{vocabulary.pronounce}/</p>
                   </div>
