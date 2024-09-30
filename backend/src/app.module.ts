@@ -10,7 +10,7 @@ import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { WordModule } from 'src/modules/word/word.module';
-import { dataSourceOptions } from '../db/data-source';
+import { dataSourceOptions } from 'src/db/data-source';
 
 @Module({
   imports: [
