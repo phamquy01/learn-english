@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from 'src/app.controller';
-import { dataSourceOptions } from '../db/dataSource';
+import { dataSourceOptions } from 'db/dataSource';
 import { UserModule } from 'src/modules/user/user.module';
 import { TranslateModule } from 'src/modules/translate/translate.module';
 import { AuthModule } from 'src/auth/auth.module';
