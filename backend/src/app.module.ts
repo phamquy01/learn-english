@@ -14,6 +14,7 @@ import { dataSourceOptions } from '../db/data-source';
 
 @Module({
   imports: [
+    TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
     UserModule,
     TranslateModule,
@@ -21,7 +22,6 @@ import { dataSourceOptions } from '../db/data-source';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot(dataSourceOptions),
     MailerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         transport: {
