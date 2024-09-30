@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from 'src/app.controller';
-import { dataSourceOptions } from 'db/dataSource';
 import { UserModule } from 'src/modules/user/user.module';
 import { TranslateModule } from 'src/modules/translate/translate.module';
 import { AuthModule } from 'src/auth/auth.module';
@@ -11,6 +10,7 @@ import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { WordModule } from 'src/modules/word/word.module';
+import { dataSourceOptions } from 'db/data-source';
 
 @Module({
   imports: [
