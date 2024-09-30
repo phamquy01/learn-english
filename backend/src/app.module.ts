@@ -11,8 +11,6 @@ import { JwtAuthGuard } from 'src/auth/passport/jwt-auth.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { WordModule } from 'src/modules/word/word.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 
 @Module({
   imports: [
@@ -22,9 +20,6 @@ import { join } from 'path';
     WordModule,
     ConfigModule.forRoot({
       isGlobal: true,
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'frontend/.next'),
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     MailerModule.forRootAsync({
