@@ -50,9 +50,13 @@ export function LoginForm() {
       await apiAuthRequest.auth({
         accessToken: result.payload.data.accessToken,
       });
+
       router.push(`/translate`);
     } catch (error: any) {
-      setIsModalOpen(true);
+      setIsModalOpen(false);
+      if (error?.status === 400) {
+        setIsModalOpen(true);
+      }
       handleErrorApi({ error, setError: form.setError });
     } finally {
       setLoading(false);
