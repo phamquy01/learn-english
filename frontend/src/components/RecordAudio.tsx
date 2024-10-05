@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { Mic, MicIcon } from 'lucide-react';
 import { useState } from 'react';
-import { useFormStatus } from 'react-dom';
 
 export default function RecordAudio({
   uploadAudio,
@@ -11,9 +10,6 @@ export default function RecordAudio({
   uploadAudio: (text: string) => void;
   text: string;
 }) {
-  console.log(text);
-
-  const { pending } = useFormStatus();
   const [recordingStatus, setRecordingStatus] = useState<string>('inactive');
 
   const handleVoice = (text: string) => {
@@ -23,7 +19,7 @@ export default function RecordAudio({
     }
   };
 
-  const startRecording = (e: any) => {
+  const startRecording = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
       const SpeechRecognition =
@@ -54,7 +50,7 @@ export default function RecordAudio({
   return (
     <>
       <Button
-        variant="ghost"
+        variant="transparent"
         onClick={(e) => startRecording(e)}
         disabled={!!text}
       >

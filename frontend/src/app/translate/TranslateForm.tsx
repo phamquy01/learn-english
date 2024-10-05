@@ -16,14 +16,13 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRightLeft, Star, Volume2Icon, X, XIcon } from 'lucide-react';
+import { ArrowRightLeft, X } from 'lucide-react';
 import RecordAudio from '@/components/RecordAudio';
 import apiTranslateRequest from '@/apiRequests/translate';
 import { MdOutlineStarPurple500 } from 'react-icons/md';
 import { TranslationListResType } from '@/schemaValidations/translate.schema';
 import PlayAudio from '@/components/playAudio';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
 import TranslateHistory from '@/app/translate/TranslateHistory';
 import { set } from 'zod';
 
@@ -168,20 +167,12 @@ export default function TranslateForm({
     }
   };
 
-  const handleSetIntputLanguage = (value: string) => {
-    setInputLanguage(value);
-  };
-  const handleSetOutputLanguage = (value: string) => {
-    setOutputLanguage(value);
-  };
-
   const handleExChangeLanguage = () => {
     const temp = input;
     setInput(output);
     setOutput(temp);
-    const temp1 = inputLanguage;
     setInputLanguage(outputLanguage);
-    setOutputLanguage(temp1);
+    setOutputLanguage(inputLanguage);
   };
 
   useEffect(() => {
@@ -227,8 +218,8 @@ export default function TranslateForm({
           <div className="flex items-center justify-between whitespace-nowrap flex-1 space-y-2 ">
             <Select
               name="inputLanguage"
-              defaultValue={inputLanguage}
-              onValueChange={handleSetIntputLanguage}
+              value={inputLanguage}
+              onValueChange={() => setInputLanguage(inputLanguage)}
             >
               <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                 <SelectValue placeholder="Select a language" />
@@ -255,8 +246,8 @@ export default function TranslateForm({
 
             <Select
               name="outputLanguage"
-              defaultValue={outputLanguage}
-              onValueChange={handleSetOutputLanguage}
+              value={outputLanguage}
+              onValueChange={() => setOutputLanguage(outputLanguage)}
             >
               <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                 <SelectValue placeholder="Select a language" />
