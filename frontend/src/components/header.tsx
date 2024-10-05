@@ -1,15 +1,14 @@
 import Menu from '@/components/menu';
-import { ModeToggle } from '@/components/ModeToggle';
 import { Button } from '@/components/ui/button';
-import { cookies } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { use, useEffect } from 'react';
 
-export default function Header() {
-  const cookieStore = cookies();
-  const accessToken = cookieStore.get('accessToken');
-
+export default function Header({
+  accessToken,
+}: {
+  accessToken?: string | null;
+}) {
   return (
     <header className="flex justify-between items-center px-8 border-b mb-5">
       <div className="flex items-center justify-center h-20">
@@ -23,7 +22,7 @@ export default function Header() {
           />
         </Link>
       </div>
-      {accessToken?.value ? (
+      {accessToken ? (
         <Menu />
       ) : (
         <div>
@@ -35,6 +34,3 @@ export default function Header() {
     </header>
   );
 }
-
-
-

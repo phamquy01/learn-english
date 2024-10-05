@@ -22,6 +22,7 @@ import { handleErrorApi } from '@/lib/utils';
 import { useState } from 'react';
 import Link from 'next/link';
 import { ModalVerifyAccount } from '@/components/ModalVerifyAccount';
+import { revalidateTag } from 'next/cache';
 
 export function LoginForm() {
   const [loading, setLoading] = useState(false);

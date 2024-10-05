@@ -13,7 +13,7 @@ import {
 
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRightLeft, Star, Volume2Icon, X, XIcon } from 'lucide-react';
@@ -55,7 +55,6 @@ export default function TranslateForm({
   const [autoResize, setAutoResize] = useState<number | undefined>(undefined);
   const [savedTranslations, setSavedTranslations] =
     useState<TranslationListResType>();
-
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
   const contentEditableRef = useRef<HTMLTextAreaElement>(null);
   let enterPressed = false;
@@ -116,8 +115,8 @@ export default function TranslateForm({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    setStarStatus(false);
     const element = contentEditableRef.current;
-    console.log(element?.scrollHeight);
 
     if (element) {
       console.log(element.scrollHeight);
@@ -143,6 +142,7 @@ export default function TranslateForm({
   const handleRemoveAllInput = () => {
     const contentEditableElement = contentEditableRef.current;
     if (contentEditableElement) {
+      setStarStatus(false);
       setInput('');
       setOutput('');
       setAIText('');
@@ -199,8 +199,6 @@ export default function TranslateForm({
     }
   }, [state]);
 
-  console.log(savedTranslations);
-
   useEffect(() => {
     if (dataTranslations.data.translations.length === 0) return;
     const listFromTextDataTranslation = dataTranslations.data.translations.map(
@@ -224,20 +222,6 @@ export default function TranslateForm({
 
   return (
     <div>
-      <div className="flex space-x-2">
-        <div className="flex justify-center items-center group cursor-pointer rounded-md w-fit px-3 py-2 bg-[#E7F0FE] mb-5">
-          <Image
-            src="https://i.pinimg.com/564x/b2/ae/20/b2ae208948fb4736473362f6de772457.jpg"
-            alt="text-logo"
-            width={30}
-            height={30}
-          />
-          <p className="text-sm font-medium text-blue-500 group-hover:underline ml-2 mt-1">
-            Text
-          </p>
-        </div>
-      </div>
-
       <form action={formAction}>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between whitespace-nowrap flex-1 space-y-2 ">
@@ -250,12 +234,6 @@ export default function TranslateForm({
                 <SelectValue placeholder="Select a language" />
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Want us to figure it out?</SelectLabel>
-                  <SelectItem key="auto" value="auto">
-                    Auto-Detection
-                  </SelectItem>
-                </SelectGroup>
                 <SelectGroup>
                   <SelectLabel>Languages</SelectLabel>
                   {Object.entries(languages.translation).map(([key, value]) => (
@@ -285,12 +263,6 @@ export default function TranslateForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Want us to figure it out?</SelectLabel>
-                  <SelectItem key="auto" value="auto">
-                    Auto-Detection
-                  </SelectItem>
-                </SelectGroup>
-                <SelectGroup>
                   <SelectLabel>Languages</SelectLabel>
                   {Object.entries(languages.translation).map(([key, value]) => (
                     <SelectItem key={key} value={key}>
@@ -303,7 +275,7 @@ export default function TranslateForm({
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <div className="min-h-[164px] bg-[#f5f5f5] text-2xl flex flex-col items-start flex-1 rounded-md">
+            <div className="min-h-[164px]  border border-[#0000001f] text-2xl flex flex-col items-start flex-1 rounded-md">
               <div
                 className="flex w-full relative pr-[56px] pt-[12px] pl-[16px]"
                 style={{ height: autoResize ? autoResize : '100%' }}
@@ -364,7 +336,7 @@ export default function TranslateForm({
                   <Textarea
                     readOnly
                     placeholder="Translation"
-                    className="absolute resize-none top-0 left-0 p-0 text-2xl text-[#3c4043] outline-none border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 ring-0 h-full font-light"
+                    className="absolute resize-none top-0 left-0 p-0 text-2xl text-[#3c4043] outline-none border-none flex-1 w-full whitespace-pre-wrap z-20 shadow-none focus-visible:ring-0 ring-0 h-full font-normal"
                     name="output"
                     value={output}
                     onChange={(e) => setOutput(e.target.value)}
@@ -407,7 +379,6 @@ export default function TranslateForm({
         />
       </div>
 
-      {/* Saved use sheet shadcn/ui*/}
       <div className="flex items-center justify-between mt-5">
         <div className="flex items-center">
           <h2 className="text-xl font-bold text-[#3c4043]">Saved</h2>
