@@ -29,7 +29,7 @@ async function translate(prevState: State, formData: FormData) {
   };
 
   const params = new URLSearchParams({
-    q: rawFromData.input,
+    q: rawFromData.input ?? '',
     langpair: `${rawFromData.inputLanguage}|${rawFromData.outputLanguage}`,
   });
 
@@ -42,14 +42,17 @@ async function translate(prevState: State, formData: FormData) {
   const response = await apiTranslateRequest.translate(params.toString());
   const data = response.payload;
 
-  console.log('data', data);
-
   try {
     const translationData = {
       to: rawFromData.outputLanguage,
       from: rawFromData.inputLanguage,
       fromText: rawFromData.input,
-      toText: rawFromData.input === '' ? '' : data.responseData.translatedText,
+      toText:
+        rawFromData.input === ''
+          ? ''
+          : data.responseData.translatedText
+          ? data.responseData.translatedText
+          : '',
     };
     await apiTranslateRequest.translation(accessToken, translationData);
   } catch (error) {
@@ -63,7 +66,12 @@ async function translate(prevState: State, formData: FormData) {
 
   return {
     ...prevState,
-    output: rawFromData.input === '' ? '' : data.responseData.translatedText,
+    output:
+      rawFromData.input === ''
+        ? ''
+        : data.responseData.translatedText
+        ? data.responseData.translatedText
+        : '',
   };
 }
 

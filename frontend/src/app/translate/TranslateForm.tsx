@@ -118,7 +118,6 @@ export default function TranslateForm({
     const element = contentEditableRef.current;
 
     if (element) {
-      console.log(element.scrollHeight);
       element.style.height = 'auto';
       element.style.height = `${element.scrollHeight + 64}px`;
       element.scrollTop = element.scrollHeight;
@@ -219,7 +218,7 @@ export default function TranslateForm({
             <Select
               name="inputLanguage"
               value={inputLanguage}
-              onValueChange={() => setInputLanguage(inputLanguage)}
+              onValueChange={(e) => setInputLanguage(e)}
             >
               <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                 <SelectValue placeholder="Select a language" />
@@ -247,7 +246,7 @@ export default function TranslateForm({
             <Select
               name="outputLanguage"
               value={outputLanguage}
-              onValueChange={() => setOutputLanguage(outputLanguage)}
+              onValueChange={(e) => setOutputLanguage(e)}
             >
               <SelectTrigger className="w-[280px] border-none text-blue-500 font-bold">
                 <SelectValue placeholder="Select a language" />

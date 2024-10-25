@@ -39,7 +39,6 @@ export default function RecordAudio({
       };
 
       recognition.onresult = (e: any) => {
-        console.log('result', e);
         const text = e.results[0][0].transcript;
 
         handleVoice(text);
