@@ -10,3 +10,23 @@ services:
       MYSQL_USER: quypham
       MYSQL_PASSWORD: Abc123456
       MYSQL_DATABASE: backend-db
+    expose:
+      - "3306"
+
+
+  
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs_container
+    environment:
+      DATABASE_HOST: backend-db
+      DATABASE_PORT: 3306
+      DATABASE_USER: quypham
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: your_database_name
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend-db
