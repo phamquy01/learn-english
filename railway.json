@@ -1,0 +1,8 @@
+{
+  "build": {
+    "root": "./backend"
+  },
+  "start": {
+    "command": "npm start"
+  }
+}
