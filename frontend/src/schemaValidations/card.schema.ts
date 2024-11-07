@@ -5,16 +5,16 @@ export const CardBody = z
     answer: z.string(),
     translation: z.string(),
   })
-  .strict();
-// .superRefine(({ translation, answer }, ctx) => {
-//   if (translation !== answer) {
-//     ctx.addIssue({
-//       code: 'custom',
-//       message: 'cầu trả lời chưa chính xác',
-//       path: ['translation'],
-//     });
-//   }
-// });
+  .strict()
+  .superRefine(({ translation, answer }, ctx) => {
+    if (translation == '') {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'bạn cần nhập câu tả lời',
+        path: ['translation'],
+      });
+    }
+  });
 
 export type CardBodyType = z.TypeOf<typeof CardBody>;
 

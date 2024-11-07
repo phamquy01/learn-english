@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/select';
 
 import { Textarea } from '@/components/ui/textarea';
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-dom';
 import { Button } from '@/components/ui/button';
@@ -22,9 +21,8 @@ import apiTranslateRequest from '@/apiRequests/translate';
 import { MdOutlineStarPurple500 } from 'react-icons/md';
 import { TranslationListResType } from '@/schemaValidations/translate.schema';
 import PlayAudio from '@/components/playAudio';
-import Link from 'next/link';
 import TranslateHistory from '@/app/translate/TranslateHistory';
-import { set } from 'zod';
+import { useRouter } from 'next/navigation';
 
 const initialState = {
   inputLanguage: 'auto',
@@ -57,6 +55,7 @@ export default function TranslateForm({
   const sunbmitBtnRef = useRef<HTMLButtonElement>(null);
   const contentEditableRef = useRef<HTMLTextAreaElement>(null);
   let enterPressed = false;
+  const router = useRouter();
 
   const uploadAudio = async (text: string) => {
     if (text) {
@@ -172,6 +171,10 @@ export default function TranslateForm({
     setOutput(temp);
     setInputLanguage(outputLanguage);
     setOutputLanguage(inputLanguage);
+  };
+
+  const navigateCard = () => {
+    router.push('/cards');
   };
 
   useEffect(() => {
@@ -371,23 +374,25 @@ export default function TranslateForm({
 
       <div className="flex items-center justify-between mt-5">
         <div className="flex items-center">
-          <h2 className="text-xl font-bold text-[#3c4043]">Saved</h2>
+          <h2 className="text-xl font-bold text-[#3c4043]">History</h2>
           <span className="text-[#868686] text-sm ml-2">All days</span>
         </div>
-        {savedTranslations && (
-          <TranslateHistory
-            title="Translation Saved"
-            dataTranslations={savedTranslations}
-          />
-        )}
+        <TranslateHistory
+          title="Translation History"
+          dataTranslations={savedTranslations}
+        />
       </div>
 
       <div className="flex items-center justify-between mt-5">
         <div className="flex items-center">
           <h2 className="text-xl font-bold text-[#3c4043]">Card</h2>
         </div>
-        <Button variant="ghost" className="text-[#3c4043]">
-          <Link href="/cards">Go {'->'}</Link>
+        <Button
+          variant="ghost"
+          className="text-[#3c4043]"
+          onClick={navigateCard}
+        >
+          Go {'->'}
         </Button>
       </div>
     </div>

@@ -9,17 +9,7 @@ import { WordsListType } from '@/schemaValidations/card.schema';
 import InputCard from '@/app/cards/InputCard';
 import PlayAudio from '@/components/playAudio';
 import { decodeFromBase26, encodeToBase26 } from '@/lib/utils';
-import {
-  Card as UICard,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import Image from 'next/image';
-import { text } from 'stream/consumers';
-import { LucideChartNoAxesColumnIncreasing } from 'lucide-react';
+import { Card as UICard } from '@/components/ui/card';
 
 export default function Card() {
   const router = useRouter();
@@ -34,29 +24,6 @@ export default function Card() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [answer, setAnswer] = useState('');
   const [isDisabledInput, setIsDisabledInput] = useState<boolean>(false);
-
-  const images = [
-    'b1.jpg',
-    'b2.jpg',
-    'b3.jpg',
-    'b4.jpg',
-    'b5.jpg',
-    'b6.jpg',
-    'b7.jpg',
-    'b8.jpg',
-    'b9.jpg',
-    'b10.jpg',
-    'b11.jpg',
-    'b12.jpg',
-    'b13.jpg',
-    'b14.jpg',
-    'b15.jpg',
-    'b16.jpg',
-    'b17.jpg',
-    'b18.jpg',
-    'b19.jpg',
-    'b0.jpg',
-  ];
 
   const handleFlip = (index: number, text: string) => {
     setIsDisabledInput(false);
@@ -110,12 +77,12 @@ export default function Card() {
 
   return (
     <div className="flex flex-col-reverse w-full px-8">
-      <div className="grid grid-cols-3 gap-4 lg:grid-cols-5">
+      <div className=" flex flex-wrap justify-center items-center gap-4 mb-8">
         {dataGetFromDBWord.length > 0 &&
           dataGetFromDBWord.map((vocabulary, index) => (
             <motion.div
               key={vocabulary.id}
-              className="relative w-52 h-72 [perspective:1000px]"
+              className="relative w-52 h-44 [perspective:1000px]"
             >
               <motion.div
                 key={vocabulary.id}
@@ -125,45 +92,29 @@ export default function Card() {
                 }}
               >
                 <motion.div onClick={() => handleFlip(index, vocabulary.word)}>
-                  <UICard className="absolute w-full h-full [backface-visibility:hidden]">
-                    <CardContent className="flex items-center justify-center h-full ">
-                      <Image
-                        src={`/images/b${index}.jpg`}
-                        alt={`Card front ${index}`}
-                        width={150}
-                        height={200}
-                        priority
-                        className="rounded-lg blur-md opacity-50"
-                      />
-                      <div className="absolute  text-center text-xs lg:text-2xl font-bold p-4">
+                  <UICard className="absolute w-full h-full bg-gray-100 [backface-visibility:hidden]">
+                    <div className="flex items-center justify-center h-full ">
+                      <div className="absolute text-center text-sm lg:text-xl font-bold p-2">
                         {vocabulary.meaning}
                       </div>
-                    </CardContent>
+                    </div>
                   </UICard>
                 </motion.div>
 
-                <div className="relative w-full h-full backface-hidden [transform:rotateY(180deg)] bg-white rounded-lg shadow-md flex items-center justify-center p-4 flex-col">
-                  <Image
-                    src={`/images/b${index}.jpg`}
-                    alt={`Card front ${index}`}
-                    width={150}
-                    height={200}
-                    priority
-                    className="rounded-lg blur-md opacity-50"
-                  />
+                <UICard className="relative w-full h-full backface-hidden [transform:rotateY(180deg)] bg-white rounded-lg border-green-500 shadow-md flex items-center justify-center p-4 flex-col">
                   <div className="absolute flex flex-col justify-center items-center">
-                    <h3 className="text-center text-xs lg:text-2xl font-semibold">
+                    <h3 className="text-center text-xl lg:text-2xl font-semibold">
                       {vocabulary.word}
                     </h3>
                     <div className="flex flex-col items-center gap-2 text-gray-400 my-2 text-sm">
                       <p>{vocabulary.type}</p>
                       <p>/{vocabulary.pronounce}/</p>
                     </div>
-                    <div className="">
+                    <div>
                       <PlayAudio language="en" text={vocabulary.word} />
                     </div>
                   </div>
-                </div>
+                </UICard>
               </motion.div>
             </motion.div>
           ))}

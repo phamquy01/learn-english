@@ -17,9 +17,9 @@ export default function TranslateHistory({
   dataTranslations,
 }: {
   title: string;
-  dataTranslations: TranslationListResType;
+  dataTranslations: TranslationListResType | undefined;
 }) {
-  const data = dataTranslations.data;
+  const data = dataTranslations?.data;
   const getLanguage = (languageCode: string) => {
     const lang = new Intl.DisplayNames(['en'], { type: 'language' });
     return lang.of(languageCode);
@@ -39,12 +39,12 @@ export default function TranslateHistory({
           </SheetHeader>
           <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
             <div className="space-y-4">
-              {data.translations.length === 0 && (
+              {data?.translations.length === 0 && (
                 <p className="mb-5 text-gray-400">No translation</p>
               )}
 
               <ul>
-                {data.translations.map((dataTranslation) => (
+                {data?.translations.map((dataTranslation) => (
                   <li
                     key={dataTranslation.id}
                     className="flex justify-between items-center p-5 hover:bg-gray-50 relative border"

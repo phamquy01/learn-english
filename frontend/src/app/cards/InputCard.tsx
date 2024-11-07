@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 'use client';
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import {
   Form,
   FormControl,
@@ -177,7 +177,7 @@ const InputCard = forwardRef<
                   <FormControl className="mt-1">
                     <Input
                       className={`block w-full appearance-none rounded-md border border-neutral-300 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm
-                     `}
+                        `}
                       placeholder="translation"
                       {...field}
                       ref={ref}
