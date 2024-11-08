@@ -59,6 +59,10 @@ export default function Card() {
     );
   };
 
+  const shuffleArray = (array: WordsListType) => {
+    return array.sort(() => Math.random() - 0.5);
+  };
+
   useEffect(() => {
     const getWords = async () => {
       try {
@@ -66,7 +70,7 @@ export default function Card() {
           +(currentPageWord ?? 1),
           20
         );
-        setDataGetFromDBWord(result.payload.words);
+        setDataGetFromDBWord(shuffleArray(result.payload.words));
       } catch (error) {
         console.error('Error fetching data:', error);
         return null;
