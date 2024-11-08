@@ -131,7 +131,7 @@ export function LoginForm() {
             </Link>
           </div>
         </div>
-        <div className="flex items-center justify-center">
+        {/* <div className="flex items-center justify-center">
           <div className="text-sm">
             <Link
               href="#"
@@ -140,7 +140,7 @@ export function LoginForm() {
               Forgot password?
             </Link>
           </div>
-        </div>
+        </div> */}
       </Form>
       {isModalOpen && (
         <ModalVerifyAccount
