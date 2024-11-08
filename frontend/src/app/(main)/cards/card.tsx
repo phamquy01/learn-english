@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import apiCardRequests from '@/apiRequests/card';
 import { WordsListType } from '@/schemaValidations/card.schema';
-import InputCard from '@/app/cards/InputCard';
+import InputCard from '@/app/(main)/cards/InputCard';
 import PlayAudio from '@/components/playAudio';
 import { decodeFromBase26, encodeToBase26 } from '@/lib/utils';
 import { Card as UICard } from '@/components/ui/card';
@@ -92,9 +92,15 @@ export default function Card() {
                 }}
               >
                 <motion.div onClick={() => handleFlip(index, vocabulary.word)}>
-                  <UICard className="absolute w-full h-full bg-gray-100 [backface-visibility:hidden]">
+                  <UICard
+                    className={`absolute w-full h-full bg-gray-100 [backface-visibility:hidden]  transition-all duration-300 ease-in-out transform 
+                       hover:rotate-1 hover:-translate-y-1 hover:translate-x-1 
+                       hover:shadow-xl hover:bg-white/90 ${
+                         indexCard === index ? 'border-blue-500' : ''
+                       }`}
+                  >
                     <div className="flex items-center justify-center h-full ">
-                      <div className="absolute text-center text-sm lg:text-xl font-bold p-2">
+                      <div className="absolute text-center text-sm lg:text-xl font-bold p-2 cursor-pointer">
                         {vocabulary.meaning}
                       </div>
                     </div>

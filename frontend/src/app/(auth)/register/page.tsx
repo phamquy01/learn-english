@@ -8,7 +8,7 @@ export default function Register() {
       <div className="w-full max-w-md space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-foreground">
-            Welcom back
+            Welcome back
           </h2>
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Or{' '}
@@ -19,8 +19,6 @@ export default function Register() {
               start your free trial
             </Link>
           </p>
-          {/* <div className="flex justify-center ">
-          </div> */}
         </div>
         <RegisterForm />
       </div>

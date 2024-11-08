@@ -34,7 +34,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AppProvider initialAccessToken={accessToken?.value}>
-            <Header accessToken={accessToken?.value} />
+            <Header />
             <div className="-full lg:max-w-7xl mx-auto"> {children}</div>
           </AppProvider>
         </ThemeProvider>

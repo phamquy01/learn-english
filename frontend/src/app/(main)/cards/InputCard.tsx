@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 'use client';
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import {
   Form,
   FormControl,
@@ -138,8 +138,18 @@ const InputCard = forwardRef<
     useEffect(() => {
       if (answer) {
         form.reset({ answer, translation: '' });
+        setIsAnimating(true);
       }
     }, [answer, form]);
+
+    const [isAnimating, setIsAnimating] = useState(false); // State for animation
+
+    useEffect(() => {
+      if (isAnimating) {
+        const timer = setTimeout(() => setIsAnimating(false), 1000);
+        return () => clearTimeout(timer);
+      }
+    }, [isAnimating]);
 
     return (
       <>
@@ -176,7 +186,9 @@ const InputCard = forwardRef<
                   </FormLabel>
                   <FormControl className="mt-1">
                     <Input
-                      className={`block w-full appearance-none rounded-md border border-neutral-300 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm
+                      className={`block w-full appearance-none rounded-md border border-neutral-300 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm ${
+                        isAnimating ? 'animate-bounce-fast' : ''
+                      }
                         `}
                       placeholder="translation"
                       {...field}

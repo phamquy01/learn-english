@@ -1,5 +1,5 @@
+import Card from '@/app/(main)/cards/card';
 import React from 'react';
-import Card from '@/app/cards/card';
 
 export default async function Page() {
   return (

@@ -33,7 +33,10 @@ export default function Menu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
         <Avatar>
-          <AvatarImage src="https://github.com/Phamquy01.png" alt="@shadcn" />
+          <AvatarImage
+            src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.webiconio.com%2Fdetail%2F255%2F&psig=AOvVaw0kJzKa8s9EdtKGgG37MjDM&ust=1731163190092000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNDHss37zIkDFQAAAAAdAAAAABAE"
+            alt="user"
+          />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>

@@ -105,6 +105,7 @@ export function LoginForm() {
                     className="block w-full appearance-none rounded-md border border-neutral-300 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                     placeholder="Password"
                     {...field}
+                    type="password"
                   />
                 </FormControl>
                 <FormMessage />

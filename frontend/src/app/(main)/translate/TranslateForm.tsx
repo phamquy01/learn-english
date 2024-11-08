@@ -1,6 +1,5 @@
 'use client';
 import translate from '@/actions/translate';
-import { TranslationLanguages } from '@/app/translate/page';
 import {
   Select,
   SelectContent,
@@ -21,8 +20,9 @@ import apiTranslateRequest from '@/apiRequests/translate';
 import { MdOutlineStarPurple500 } from 'react-icons/md';
 import { TranslationListResType } from '@/schemaValidations/translate.schema';
 import PlayAudio from '@/components/playAudio';
-import TranslateHistory from '@/app/translate/TranslateHistory';
 import { useRouter } from 'next/navigation';
+import { TranslationLanguages } from '@/app/(main)/translate/page';
+import TranslateHistory from '@/app/(main)/translate/TranslateHistory';
 
 const initialState = {
   inputLanguage: 'auto',

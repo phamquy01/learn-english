@@ -21,7 +21,6 @@ import apiAuthRequest from '@/apiRequests/auth';
 import { useRouter } from 'next/navigation';
 import { handleErrorApi } from '@/lib/utils';
 import { useState } from 'react';
-import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 
 export function RegisterForm() {
@@ -112,6 +111,7 @@ export function RegisterForm() {
                   className="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-2 placeholder-muted-foreground focus:z-10 focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   placeholder="Password"
                   {...field}
+                  type="password"
                 />
               </FormControl>
               <FormMessage />
@@ -131,6 +131,7 @@ export function RegisterForm() {
                   className="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-2 placeholder-muted-foreground focus:z-10 focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   placeholder="Confirm password"
                   {...field}
+                  type="password"
                 />
               </FormControl>
               <FormMessage />
