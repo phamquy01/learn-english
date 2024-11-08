@@ -1,4 +1,4 @@
-import Card from '@/app/(main)/cards/card';
+import Card from '@/app/cards/card';
 import React from 'react';
 
 export default async function Page() {

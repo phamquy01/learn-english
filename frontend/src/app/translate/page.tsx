@@ -1,5 +1,5 @@
 import apiTranslateRequest from '@/apiRequests/translate';
-import TranslateForm from '@/app/(main)/translate/TranslateForm';
+import TranslateForm from '@/app/translate/TranslateForm';
 import { cookies } from 'next/headers';
 import React from 'react';
 

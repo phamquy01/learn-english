@@ -21,8 +21,8 @@ import { MdOutlineStarPurple500 } from 'react-icons/md';
 import { TranslationListResType } from '@/schemaValidations/translate.schema';
 import PlayAudio from '@/components/playAudio';
 import { useRouter } from 'next/navigation';
-import { TranslationLanguages } from '@/app/(main)/translate/page';
-import TranslateHistory from '@/app/(main)/translate/TranslateHistory';
+import { TranslationLanguages } from '@/app/translate/page';
+import TranslateHistory from '@/app/translate/TranslateHistory';
 
 const initialState = {
   inputLanguage: 'auto',

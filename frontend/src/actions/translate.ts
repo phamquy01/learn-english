@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
-import { State } from '@/app/(main)/translate/TranslateForm';
+import { State } from '@/app/translate/TranslateForm';
 
 async function translate(prevState: State, formData: FormData) {
   const cookieStore = cookies();
