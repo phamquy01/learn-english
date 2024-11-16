@@ -45,14 +45,14 @@ export function LoginForm() {
     setUserEmail(values.email);
     try {
       const result = await apiAuthRequest.login(values);
-      toast({
-        description: result.payload.message,
-      });
       await apiAuthRequest.auth({
         accessToken: result.payload.data.accessToken,
       });
-
+      toast({
+        description: result.payload.message,
+      });
       router.push(`/translate`);
+      router.refresh();
     } catch (error: any) {
       setIsModalOpen(false);
       if (error?.status === 400) {

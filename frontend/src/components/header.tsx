@@ -8,6 +8,7 @@ import React from 'react';
 export default function Header() {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('accessToken');
+
   return (
     <header className="flex justify-between items-center px-8 border-b mb-5">
       <div className="flex items-center justify-center h-20">
@@ -24,11 +25,11 @@ export default function Header() {
       {accessToken ? (
         <Menu />
       ) : (
-        <div>
+        <>
           <Button variant="ghost">
             <Link href="/login">Sign in</Link>
           </Button>
-        </div>
+        </>
       )}
     </header>
   );
