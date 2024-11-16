@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 import { State } from '@/app/translate/TranslateForm';
+import { match } from 'assert';
 
 async function translate(prevState: State, formData: FormData) {
   const cookieStore = cookies();
@@ -42,6 +43,40 @@ async function translate(prevState: State, formData: FormData) {
   const response = await apiTranslateRequest.translate(params.toString());
   const data = response.payload;
 
+  console.log('data', data);
+
+  const getBestTranslation = (data: any) => {
+    const matches = data.matches;
+
+    const validatedMatches = matches.filter(
+      (match: any) => match.translation !== '[object HTMLTextAreaElement]'
+    );
+
+    const highestQuality = Math.max(
+      ...validatedMatches.map((match: any) => match.quality)
+    );
+
+    const bestMatches = validatedMatches.filter(
+      (m: any) => m.quality === highestQuality
+    );
+
+    if (bestMatches.length === 1) {
+      return bestMatches[0].translation;
+    }
+
+    const bestByUsage = bestMatches.sort(
+      (a: any, b: any) => b['usage-count'] - a['usage-count']
+    );
+
+    bestByUsage.sort(
+      (a: any, b: any) =>
+        new Date(b['create-date']).getTime() -
+        new Date(a['create-date']).getTime()
+    );
+
+    return bestByUsage[0].translation;
+  };
+
   try {
     const translationData = {
       to: rawFromData.outputLanguage,
@@ -50,8 +85,8 @@ async function translate(prevState: State, formData: FormData) {
       toText:
         rawFromData.input === ''
           ? ''
-          : data.responseData.translatedText
-          ? data.responseData.translatedText
+          : getBestTranslation(data)
+          ? getBestTranslation(data)
           : '',
     };
     await apiTranslateRequest.translation(accessToken, translationData);
@@ -69,8 +104,8 @@ async function translate(prevState: State, formData: FormData) {
     output:
       rawFromData.input === ''
         ? ''
-        : data.responseData.translatedText
-        ? data.responseData.translatedText
+        : getBestTranslation(data)
+        ? getBestTranslation(data)
         : '',
   };
 }
