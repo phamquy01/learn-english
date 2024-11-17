@@ -116,8 +116,15 @@ export function LoginForm() {
           <Button
             className="group relative flex w-full justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-primary-foreground hover:bg-primary-foreground hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             type="submit"
+            disabled={loading}
           >
-            Đăng nhập{' '}
+            {loading ? (
+              <>
+                <div className="animate-spin h-5 w-5 mr-3 border" /> loading...
+              </>
+            ) : (
+              'Login'
+            )}
           </Button>
         </form>
         <div className="flex items-center justify-center">
