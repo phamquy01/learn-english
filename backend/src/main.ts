@@ -9,7 +9,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(cors());
   app.enableCors({
-    origin: ['learn-english-six-rose.vercel.app'],
+    origin: ['learn-english-six-rho.vercel.app'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
   app.use(cookieParser());
