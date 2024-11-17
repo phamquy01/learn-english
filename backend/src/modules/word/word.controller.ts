@@ -9,7 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { WordService } from './word.service';
-import { Public } from 'src/decorator/customize';
 
 @Controller('words')
 export class WordController {

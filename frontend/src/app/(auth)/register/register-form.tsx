@@ -30,9 +30,9 @@ export function RegisterForm() {
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
-      name: '',
       confirmPassword: '',
     },
   });
@@ -47,6 +47,8 @@ export function RegisterForm() {
       });
       router.push(`/verify/${result.payload.user.id}`);
     } catch (error: any) {
+      console.log(error);
+
       handleErrorApi({ error, setError: form.setError });
     } finally {
       setLoading(false);
