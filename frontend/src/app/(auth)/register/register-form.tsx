@@ -148,7 +148,7 @@ export function RegisterForm() {
               <div className="animate-spin h-5 w-5 mr-3 border" /> loading...
             </>
           ) : (
-            'Reagister'
+            'Register'
           )}
         </Button>
       </form>
