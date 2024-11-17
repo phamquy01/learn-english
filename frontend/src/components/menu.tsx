@@ -29,7 +29,7 @@ export default function Menu() {
   };
 
   const handleNavigateCard = () => {
-    router.push('/cards');
+    router.push('/cards?cp=1');
   };
   return (
     <DropdownMenu>

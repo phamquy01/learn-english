@@ -78,8 +78,7 @@ export default function Card() {
   return (
     <div className="flex flex-col-reverse w-full px-8">
       <div className=" flex flex-wrap justify-center items-center gap-4 mb-8">
-        {dataGetFromDBWord &&
-          dataGetFromDBWord?.length > 0 &&
+        {dataGetFromDBWord?.length > 0 &&
           dataGetFromDBWord.map((vocabulary, index) => (
             <motion.div
               key={vocabulary.id}
