@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Token } from 'src/modules/token/entities/token.entity';
 import { CodeAuthDTO } from 'src/auth/dto/code-auth.dto';
+import { CustomErrorException } from 'src/exception';
 @Injectable()
 export class UserService {
   constructor(
@@ -130,9 +131,19 @@ export class UserService {
 
   async register(registerDTO: CreateAuthDTO) {
     const { name, email, password } = registerDTO;
+
+    const isName = await this.userRepository.findOne({ where: { name } });
+    if (isName) {
+      throw new CustomErrorException([
+        { field: 'name', message: 'Username already exists' },
+      ]);
+    }
+
     const isEmail = await this.isEmailExist(email);
     if (isEmail === true) {
-      throw new BadRequestException(`Email đã tồn tại: ${email}`);
+      throw new CustomErrorException([
+        { field: 'email', message: 'Email already exists' },
+      ]);
     }
     const hashedPassword = await hashedPasswordHelper(password);
     const user = this.userRepository.create({

@@ -174,7 +174,7 @@ export default function TranslateForm({
   };
 
   const navigateCard = () => {
-    router.push('/cards?cp=1');
+    router.push('/cards');
   };
 
   useEffect(() => {

@@ -54,6 +54,8 @@ export function LoginForm() {
       router.push(`/translate`);
       router.refresh();
     } catch (error: any) {
+      console.log(error);
+
       setIsModalOpen(false);
       if (error?.status === 400) {
         setIsModalOpen(true);

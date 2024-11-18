@@ -17,7 +17,7 @@ const apiCardRequests = {
       },
     }),
 
-  getWords: (current: number, pageSize?: number) =>
+  getWords: (current?: number, pageSize?: number) =>
     http.get<WordsResType>(
       `/api/v1/words?current=${current}&pageSize=${pageSize}`
     ),

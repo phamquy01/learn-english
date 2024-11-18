@@ -24,7 +24,7 @@ export class AuthService {
     const user = await this.usersService.finByEmail(email);
     if (!user) {
       throw new CustomErrorException([
-        { field: 'email', message: 'Email không tồn tại' },
+        { field: 'email', message: 'Email does not exist' },
       ]);
     }
     const isCheckedPassword = await comparePasswordHelper(pass, user.password);
