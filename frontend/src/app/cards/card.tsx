@@ -74,7 +74,7 @@ export default function Card({ accessToken = '' }: { accessToken: string }) {
       }
     };
     getWords();
-  }, [currentPageWord]);
+  }, [accessToken, currentPageWord]);
 
   return (
     <div className="flex flex-col-reverse w-full px-8">
