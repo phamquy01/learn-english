@@ -17,9 +17,14 @@ const apiCardRequests = {
       },
     }),
 
-  getWords: (current?: number, pageSize?: number) =>
+  getWords: (accessToken: string, current?: number, pageSize?: number) =>
     http.get<WordsResType>(
-      `/api/v1/words?current=${current}&pageSize=${pageSize}`
+      `/api/v1/words?current=${current}&pageSize=${pageSize}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
     ),
 
   getImageCard: (param: string) =>

@@ -143,6 +143,7 @@ const request = async <Response>(
       ['auth/login', 'auth/register'].some((item) => item === nomalizePath(url))
     ) {
       clientAccessToken.value = (payload as LoginResType).data.accessToken;
+      console.log('AccessToken updated:', clientAccessToken.value);
     } else if ('auth/logout' === nomalizePath(url)) {
       clientAccessToken.value = '';
     }

@@ -11,7 +11,7 @@ import PlayAudio from '@/components/playAudio';
 import { decodeFromBase26, encodeToBase26 } from '@/lib/utils';
 import { Card as UICard } from '@/components/ui/card';
 
-export default function Card() {
+export default function Card({ accessToken = '' }: { accessToken: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const flippedCardsParam = searchParams.get('fc');
@@ -63,6 +63,7 @@ export default function Card() {
     const getWords = async () => {
       try {
         const result = await apiCardRequests.getWords(
+          accessToken,
           +(currentPageWord ?? 1),
           20
         );
@@ -78,7 +79,7 @@ export default function Card() {
   return (
     <div className="flex flex-col-reverse w-full px-8">
       <div className=" flex flex-wrap justify-center items-center gap-4 mb-8">
-        {dataGetFromDBWord?.length &&
+        {dataGetFromDBWord?.length > 0 &&
           dataGetFromDBWord.map((vocabulary, index) => (
             <motion.div
               key={vocabulary.id}
