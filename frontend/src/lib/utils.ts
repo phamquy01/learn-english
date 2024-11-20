@@ -29,7 +29,7 @@ export const handleErrorApi = ({
   } else {
     toast({
       title: 'Error',
-      description: error.payload.message ?? 'Lỗi không xác định',
+      description: error?.payload?.message ?? 'Lỗi không xác định',
       variant: 'destructive',
       duration: duration ?? 2000,
     });

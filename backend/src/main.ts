@@ -9,7 +9,11 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(cors());
   app.enableCors({
-    origin: ['golden-piroshki-b63f3e.netlify.app'],
+    origin: [
+      'http://localhost:3000',
+      'learn-english-six-rho.vercel.app',
+      'golden-piroshki-b63f3e.netlify.app',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
