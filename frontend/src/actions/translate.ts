@@ -73,7 +73,7 @@ async function translate(prevState: State, formData: FormData) {
         new Date(a['create-date']).getTime()
     );
 
-    return bestByUsage[0].translation;
+    return bestByUsage[0]?.translation || data.responseData.translatedText;
   };
 
   try {
