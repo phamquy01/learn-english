@@ -22,7 +22,6 @@ import { handleErrorApi } from '@/lib/utils';
 import { useState } from 'react';
 import Link from 'next/link';
 import { ModalVerifyAccount } from '@/components/ModalVerifyAccount';
-import { revalidateTag } from 'next/cache';
 
 export function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -42,9 +41,13 @@ export function LoginForm() {
   async function onSubmit(values: LoginBodyType) {
     if (loading) return;
     setLoading(true);
-    setUserEmail(values.email);
+    const trimmedEmail = {
+      email: values.email.trim(),
+      password: values.password.trim(),
+    };
+    setUserEmail(trimmedEmail.email);
     try {
-      const result = await apiAuthRequest.login(values);
+      const result = await apiAuthRequest.login(trimmedEmail);
       await apiAuthRequest.auth({
         accessToken: result.payload.data.accessToken,
       });

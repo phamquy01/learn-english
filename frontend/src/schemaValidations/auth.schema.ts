@@ -3,7 +3,7 @@ import z from 'zod';
 export const RegisterBody = z
   .object({
     name: z.string().trim().min(2).max(256),
-    email: z.string().email(),
+    email: z.string().email().trim(),
     password: z.string().min(6).max(100),
     confirmPassword: z.string().min(6).max(100),
   })
@@ -25,7 +25,7 @@ export const RegisterRes = z.object({
   user: z.object({
     id: z.number(),
     name: z.string(),
-    email: z.string(),
+    email: z.string().trim(),
   }),
 });
 
@@ -33,7 +33,7 @@ export type RegisterResType = z.TypeOf<typeof RegisterRes>;
 
 export const LoginBody = z
   .object({
-    email: z.string().email(),
+    email: z.string().email().trim(),
     password: z.string().min(6).max(100),
   })
   .strict();
@@ -46,7 +46,7 @@ export const LoginRes = z.object({
     user: z.object({
       id: z.number(),
       name: z.string(),
-      email: z.string(),
+      email: z.string().trim(),
     }),
     accessToken: z.string(),
     refreshToken: z.string(),
