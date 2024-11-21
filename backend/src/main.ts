@@ -10,7 +10,7 @@ async function bootstrap() {
   app.use(cors());
   app.enableCors({
     origin: [
-      'learn-english-smoky.vercel.app',
+      'learn-english-blush.vercel.app',
       'golden-piroshki-b63f3e.netlify.app',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
