@@ -13,7 +13,7 @@ export default function Register() {
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Or{' '}
             <Link
-              href="#"
+              href="/login"
               className="font-medium text-primary hover:text-muted-foreground"
             >
               start your free trial
