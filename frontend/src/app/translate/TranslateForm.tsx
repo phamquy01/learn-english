@@ -153,7 +153,7 @@ export default function TranslateForm({
     setStarStatus(newStatus);
     setLoading(true);
     try {
-      const response = await apiTranslateRequest.saveTranslation({
+      await apiTranslateRequest.saveTranslation({
         id: dataTranslations.data.translations[0].id,
         userId: dataTranslations.data.userId,
         saved: newStatus,

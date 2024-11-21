@@ -8,6 +8,7 @@ import {
   Post,
   Request,
 } from '@nestjs/common';
+import { Public } from 'src/decorator/customize';
 import { SaveTranslationDTO } from 'src/modules/translate/dto/save-translation.dto';
 import { TranslateDTO } from 'src/modules/translate/dto/translate.dto';
 import { TranslateService } from 'src/modules/translate/translate.service';
@@ -26,6 +27,7 @@ export class TranslateController {
   }
 
   @Post('save-translation')
+  @Public()
   resendCode(@Body() saveTranslationDTO: SaveTranslationDTO) {
     return this.translateService.saveTranslation(saveTranslationDTO);
   }
