@@ -20,7 +20,7 @@ export default function Logout() {
         .then(() => {
           clearTimeout(timeoutId);
           router.push(`/login?redirectForm=${pathname}`);
-          // router.push(`/login`);
+          router.push(`/login`);
         })
         .catch((error) => {
           if (error.name === 'AbortError') {
