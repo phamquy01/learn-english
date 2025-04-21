@@ -1,0 +1,25 @@
+
+services:
+  backend-db:
+    image: mysql:latest
+    container_name: mysql_container
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: quypham
+      MYSQL_PASSWORD: Abc123456
+      MYSQL_DATABASE: backend-db
+  
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - "8080:80" # 
+    environment:
+      PMA_HOST: backend-db
+      PMA_PORT: 3306
+    depends_on:
+      - backend-db
