@@ -1,6 +1,21 @@
 version: '3.9'
 
 services:
+  backend:
+    build: ./backend
+    container_name: nest_backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=backend-db
+      - DB_PORT=3306
+      - DB_USER=quypham
+      - DB_PASSWORD=Abc123456
+      - DB_NAME=backend-db
+    depends_on:
+      - backend-db
+    restart: always
+
   backend-db:
     image: mysql:latest
     container_name: mysql_container
@@ -11,17 +26,16 @@ services:
       MYSQL_USER: quypham
       MYSQL_PASSWORD: Abc123456
       MYSQL_DATABASE: backend-db
-    
-  
+    restart: always
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
-    restart: always
     ports:
-      - "8080:80" # 
+      - "8080:80" 
     environment:
       PMA_HOST: backend-db
       PMA_PORT: 3306
     depends_on:
       - backend-db
+    restart: always
