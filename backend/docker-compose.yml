@@ -1,3 +1,4 @@
+version: '3.9'
 
 services:
   backend-db:
@@ -10,6 +11,7 @@ services:
       MYSQL_USER: quypham
       MYSQL_PASSWORD: Abc123456
       MYSQL_DATABASE: backend-db
+    
   
 
   phpmyadmin:
