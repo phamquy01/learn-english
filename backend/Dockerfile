@@ -1,5 +1,5 @@
 # Dockerfile cho backend NestJS
-FROM node:16
+FROM node:18
 
 # Tạo thư mục app và set làm working directory
 WORKDIR /usr/src/app
