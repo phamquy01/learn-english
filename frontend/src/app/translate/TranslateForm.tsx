@@ -374,11 +374,11 @@ export default function TranslateForm({
 
       <div className="flex items-center justify-between mt-5">
         <div className="flex items-center">
-          <h2 className="text-xl font-bold text-[#3c4043]">History</h2>
+          <h2 className="text-xl font-bold text-[#3c4043]">Favorite</h2>
           <span className="text-[#868686] text-sm ml-2">All days</span>
         </div>
         <TranslateHistory
-          title="Translation History"
+          title="Favorite Translations"
           dataTranslations={savedTranslations}
         />
       </div>
