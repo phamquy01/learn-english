@@ -9,7 +9,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(cors());
   app.enableCors({
-    origin: ['learn-english-blush.vercel.app'],
+    origin: ['learn-english-ten-phi.vercel.app'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
