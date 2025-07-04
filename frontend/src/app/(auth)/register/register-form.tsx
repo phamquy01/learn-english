@@ -22,10 +22,10 @@ import { useRouter } from 'next/navigation';
 import { handleErrorApi } from '@/lib/utils';
 import { useState } from 'react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export function RegisterForm() {
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
@@ -41,10 +41,16 @@ export function RegisterForm() {
     if (loading) return;
     setLoading(true);
     try {
+      console.log('Register values:', values);
+
       const result = await apiAuthRequest.register(values);
-      toast({
-        description: result.payload.message,
-      });
+
+      toast(
+        'Registration successful! Please check your email and spam folder to verify your account.',
+        {
+          duration: 5000,
+        }
+      );
       router.push(`/verify/${result.payload.user.id}`);
     } catch (error: any) {
       console.log(error);

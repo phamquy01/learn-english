@@ -60,11 +60,10 @@ export class AuthController {
 
   @Get('mail')
   @Public()
-  mail() {
-    this.mailerService.sendMail({
+  async mail() {
+    await this.mailerService.sendMail({
       to: 'taolaquy69@gmail.com',
-      subject: 'Testing Nest MailerModule ✔',
-      text: 'welcome',
+      subject: 'Xác nhận tài khoản ',
       template: 'register',
       context: {
         name: 'taolaquy',

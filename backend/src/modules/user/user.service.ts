@@ -94,7 +94,7 @@ export class UserService {
     });
 
     const savedUser = await this.userRepository.save(user);
-
+    this.sendEmail(savedUser);
     return {
       id: savedUser.id,
     };
